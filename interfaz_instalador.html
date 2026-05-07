@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Instalador — Revestimientos</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:#0F1117; --surface:#181C25; --surface-2:#1F2433; --border:#2A2F3D; --border-2:#363C4E;
+  --text:#E8EAF0; --muted:#8A90A0; --hint:#555C70;
+  --accent:#4ADE80; --accent-dim:#1A3D2B; --accent-bd:#2D6B45;
+  --amber:#FBB040; --amber-dim:#3D2E10; --amber-bd:#6B4A10;
+  --blue:#60A5FA; --blue-dim:#0F2040; --blue-bd:#1E4080;
+  --red:#F87171; --red-dim:#3D1010; --red-bd:#6B2020;
+  --purple:#C084FC; --purple-dim:#2A1040; --purple-bd:#5A2080;
+  --orange:#FB923C; --orange-dim:#3D1F0A; --orange-bd:#7A3A10;
+  --radius:12px; --radius-sm:8px;
+}
+body { font-family:'IBM Plex Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+/* TOPBAR */
+.topbar { background:var(--surface); border-bottom:1px solid var(--border); padding:0 20px; height:54px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+.brand { display:flex; align-items:center; gap:10px; font-weight:600; font-size:14px; color:var(--text); }
+.brand-dot { width:8px; height:8px; background:var(--accent); border-radius:50%; box-shadow:0 0 8px var(--accent); }
+.topbar-sub { font-size:12px; color:var(--muted); font-family:'IBM Plex Mono',monospace; }
+
+/* LOADING */
+.loading-overlay { position:fixed; inset:0; background:rgba(15,17,23,.95); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; z-index:999; transition:opacity .3s; }
+.loading-overlay.hidden { opacity:0; pointer-events:none; }
+.loading-overlay p { font-size:13px; color:var(--muted); }
+.spinner { width:32px; height:32px; border:2px solid var(--border-2); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* TABS */
+.tabs { display:flex; border-bottom:1px solid var(--border); background:var(--surface); overflow-x:auto; padding:0 12px; scrollbar-width:none; }
+.tabs::-webkit-scrollbar { display:none; }
+.tab { padding:14px 14px; font-size:13px; font-weight:500; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; white-space:nowrap; transition:all .15s; display:flex; align-items:center; gap:6px; }
+.tab:hover { color:var(--text); }
+.tab.active { color:var(--text); border-bottom-color:var(--accent); }
+.tab-badge { font-size:10px; font-weight:600; padding:2px 6px; border-radius:10px; font-family:'IBM Plex Mono',monospace; }
+.badge-orange { background:var(--orange-dim); color:var(--orange); border:1px solid var(--orange-bd); }
+.badge-amber  { background:var(--amber-dim);  color:var(--amber);  border:1px solid var(--amber-bd); }
+.badge-blue   { background:var(--blue-dim);   color:var(--blue);   border:1px solid var(--blue-bd); }
+.badge-purple { background:var(--purple-dim); color:var(--purple); border:1px solid var(--purple-bd); }
+.badge-green  { background:var(--accent-dim); color:var(--accent); border:1px solid var(--accent-bd); }
+
+/* MAIN */
+.main { max-width:760px; margin:0 auto; padding:16px 14px 40px; }
+
+/* SECTION HEADER */
+.section-header { display:flex; align-items:center; gap:10px; margin:20px 0 12px; }
+.section-header-line { flex:1; height:1px; background:var(--border); }
+.section-header-label { font-size:11px; font-weight:500; color:var(--hint); text-transform:uppercase; letter-spacing:.08em; white-space:nowrap; }
+
+/* TAREA HOY CARD */
+.tarea-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:10px; padding:14px 16px; display:flex; align-items:flex-start; gap:14px; }
+.tarea-hora { display:flex; flex-direction:column; align-items:center; gap:2px; min-width:52px; }
+.tarea-hora-val { font-size:16px; font-weight:600; font-family:'IBM Plex Mono',monospace; color:var(--text); line-height:1; }
+.tarea-hora-fin { font-size:11px; color:var(--hint); font-family:'IBM Plex Mono',monospace; }
+.tarea-divider { width:1px; background:var(--border-2); align-self:stretch; min-height:40px; }
+.tarea-body { flex:1; min-width:0; }
+.tarea-tipo { font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; }
+.tipo-relev { color:var(--amber); }
+.tipo-inst  { color:var(--blue); }
+.tarea-nombre { font-size:14px; font-weight:500; color:var(--text); margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tarea-dir { font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tarea-badge { margin-top:6px; }
+.estado-chip { display:inline-block; font-size:10px; font-weight:500; padding:2px 8px; border-radius:10px; }
+.ec-relev  { background:var(--amber-dim);  color:var(--amber);  border:1px solid var(--amber-bd); }
+.ec-inst   { background:var(--blue-dim);   color:var(--blue);   border:1px solid var(--blue-bd); }
+.ec-valida { background:var(--purple-dim); color:var(--purple); border:1px solid var(--purple-bd); }
+.ec-cerrado{ background:var(--accent-dim); color:var(--accent); border:1px solid var(--accent-bd); }
+
+/* ALERTA CARD */
+.alerta-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:10px; overflow:hidden; }
+.alerta-header { padding:12px 16px; display:flex; align-items:center; justify-content:space-between; gap:10px; cursor:pointer; }
+.alerta-left { flex:1; min-width:0; }
+.alerta-id { font-size:11px; font-family:'IBM Plex Mono',monospace; color:var(--hint); margin-bottom:3px; }
+.alerta-nombre { font-size:14px; font-weight:500; color:var(--text); margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.alerta-estado { font-size:12px; color:var(--muted); }
+.alerta-right { display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex-shrink:0; }
+.dias-badge { font-size:11px; font-weight:600; padding:3px 9px; border-radius:20px; font-family:'IBM Plex Mono',monospace; }
+.dias-warn  { background:var(--amber-dim); color:var(--amber);  border:1px solid var(--amber-bd); }
+.dias-crit  { background:var(--red-dim);   color:var(--red);    border:1px solid var(--red-bd); }
+.alerta-chevron { font-size:11px; color:var(--hint); transition:transform .2s; }
+.alerta-card.open .alerta-chevron { transform:rotate(180deg); }
+.alerta-body { border-top:1px solid var(--border); display:none; }
+.alerta-card.open .alerta-body { display:block; }
+
+/* PROJECT CARD (pestañas de estado) */
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:10px; overflow:hidden; transition:border-color .15s; }
+.card:hover { border-color:var(--border-2); }
+.card-header { padding:14px 16px; display:flex; align-items:flex-start; justify-content:space-between; gap:12px; cursor:pointer; }
+.card-left { flex:1; min-width:0; }
+.card-id { font-size:11px; font-family:'IBM Plex Mono',monospace; color:var(--muted); margin-bottom:4px; }
+.card-name { font-size:15px; font-weight:500; color:var(--text); margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.card-addr { font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.card-right { display:flex; flex-direction:column; align-items:flex-end; gap:6px; flex-shrink:0; }
+.card-date { font-size:11px; font-family:'IBM Plex Mono',monospace; color:var(--hint); }
+.card-chevron { font-size:11px; color:var(--hint); transition:transform .2s; }
+.card.open .card-chevron { transform:rotate(180deg); }
+.card-meta { display:flex; gap:16px; padding:0 16px 12px; flex-wrap:wrap; }
+.meta-item { display:flex; flex-direction:column; gap:2px; }
+.meta-label { font-size:10px; color:var(--hint); text-transform:uppercase; letter-spacing:.06em; }
+.meta-val { font-size:13px; font-weight:500; font-family:'IBM Plex Mono',monospace; color:var(--text); }
+.card-body { border-top:1px solid var(--border); display:none; }
+.card.open .card-body { display:block; }
+
+/* FORM */
+.card-form { padding:16px; }
+.form-title { font-size:12px; font-weight:500; color:var(--muted); text-transform:uppercase; letter-spacing:.07em; margin-bottom:14px; }
+.field { display:flex; flex-direction:column; gap:5px; margin-bottom:12px; }
+.field label { font-size:11px; font-weight:500; color:var(--hint); text-transform:uppercase; letter-spacing:.05em; }
+.field input, .field select, .field textarea { font-family:'IBM Plex Sans',sans-serif; font-size:14px; color:var(--text); background:var(--surface-2); border:1px solid var(--border-2); border-radius:var(--radius-sm); padding:10px 12px; outline:none; transition:border-color .15s; width:100%; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(74,222,128,.08); }
+.field textarea { resize:vertical; min-height:72px; }
+.field select option { background:var(--surface-2); }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+@media(max-width:480px){ .form-row { grid-template-columns:1fr; } }
+
+/* CAL MINI */
+.cal-mini { padding:0 0 8px; }
+.cal-mini-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.cal-mini-btn { background:none; border:1px solid var(--border-2); border-radius:6px; width:28px; height:28px; cursor:pointer; color:var(--muted); font-size:13px; display:flex; align-items:center; justify-content:center; transition:all .12s; }
+.cal-mini-btn:hover { background:var(--surface-2); color:var(--text); }
+.cal-mini-month { font-size:13px; font-weight:500; color:var(--text); }
+.cal-mini-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+.cal-mini-dow { text-align:center; font-size:10px; color:var(--hint); padding:2px 0 6px; text-transform:uppercase; }
+.cal-mini-day { aspect-ratio:1; display:flex; align-items:center; justify-content:center; border-radius:6px; font-size:12px; cursor:pointer; color:var(--muted); transition:all .12s; border:1px solid transparent; }
+.cal-mini-day:hover:not(.empty):not(.past) { background:var(--surface-2); color:var(--text); }
+.cal-mini-day.empty, .cal-mini-day.past { cursor:default; opacity:.4; }
+.cal-mini-day.today { color:var(--accent); font-weight:600; }
+.cal-mini-day.selected { background:var(--accent); color:#000; font-weight:600; }
+
+/* SLOTS */
+.slots-section { margin-top:12px; }
+.slots-label { font-size:11px; font-weight:500; color:var(--hint); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px; }
+.slots-scroll { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }
+.slots-scroll::-webkit-scrollbar { display:none; }
+.slot-chip { flex-shrink:0; padding:8px 12px; border-radius:var(--radius-sm); border:1px solid var(--border-2); background:var(--surface-2); cursor:pointer; transition:all .12s; text-align:center; }
+.slot-chip:hover { border-color:var(--accent-bd); background:var(--accent-dim); }
+.slot-chip.selected { border-color:var(--accent); background:var(--accent-dim); }
+.slot-chip-time { font-size:12px; font-weight:500; font-family:'IBM Plex Mono',monospace; color:var(--text); white-space:nowrap; }
+.slot-chip.selected .slot-chip-time { color:var(--accent); }
+
+/* BTN */
+.btn { width:100%; padding:12px; border:none; border-radius:var(--radius-sm); font-family:'IBM Plex Sans',sans-serif; font-size:14px; font-weight:500; cursor:pointer; transition:all .15s; display:flex; align-items:center; justify-content:center; gap:8px; margin-top:8px; }
+.btn-primary { background:var(--accent); color:#000; }
+.btn-primary:hover:not(:disabled) { background:#22c55e; }
+.btn-primary:disabled { background:var(--hint); color:var(--surface); cursor:not-allowed; }
+.btn-spinner { width:14px; height:14px; border:2px solid rgba(0,0,0,.3); border-top-color:#000; border-radius:50%; animation:spin .6s linear infinite; display:none; }
+.btn.loading .btn-spinner { display:block; }
+
+/* MSG */
+.msg { border-radius:var(--radius-sm); padding:10px 14px; font-size:13px; margin-top:10px; display:none; }
+.msg.error   { background:var(--red-dim);    border:1px solid var(--red-bd);    color:var(--red); }
+.msg.success { background:var(--accent-dim); border:1px solid var(--accent-bd); color:var(--accent); }
+.msg.visible { display:block; }
+
+.empty { text-align:center; padding:48px 20px; color:var(--hint); }
+.empty-icon { font-size:28px; margin-bottom:10px; opacity:.5; }
+.empty p { font-size:13px; line-height:1.6; }
+.card-divider { border:none; border-top:1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loading-overlay">
+  <div class="spinner"></div>
+  <p>Cargando panel...</p>
+</div>
+
+<div class="topbar">
+  <div class="brand"><div class="brand-dot"></div>Panel Instalador</div>
+  <div class="topbar-sub" id="clock"></div>
+</div>
+
+<div class="tabs" id="tabs">
+  <div class="tab active" data-tab="hoy" onclick="switchTab('hoy')">Hoy &amp; Pendientes <span class="tab-badge badge-orange" id="badge-hoy">0</span></div>
+  <div class="tab" data-tab="relevamiento" onclick="switchTab('relevamiento')">Relevamiento <span class="tab-badge badge-amber" id="badge-relevamiento">0</span></div>
+  <div class="tab" data-tab="instalacion" onclick="switchTab('instalacion')">Instalación <span class="tab-badge badge-blue" id="badge-instalacion">0</span></div>
+  <div class="tab" data-tab="validacion" onclick="switchTab('validacion')">Validación <span class="tab-badge badge-purple" id="badge-validacion">0</span></div>
+  <div class="tab" data-tab="cerrado" onclick="switchTab('cerrado')">Cerrados <span class="tab-badge badge-green" id="badge-cerrado">0</span></div>
+</div>
+
+<div class="main" id="main"></div>
+
+<script>
+const state = {
+  tab: 'hoy',
+  proyectos: [],
+  tareasHoy: [],
+  alertas: [],
+  cache: {},
+  calMes: {},
+  selectedFecha: {},
+  selectedSlot: {},
+};
+
+const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const DIAS_CORTO = ['Do','Lu','Ma','Mi','Ju','Vi','Sa'];
+
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+}
+updateClock(); setInterval(updateClock, 10000);
+
+function timeToMin(t) { const p=String(t).split(':'); return parseInt(p[0])*60+parseInt(p[1]||0); }
+function minToTime(m) { return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'); }
+function formatDate(d) { return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function formatDateHuman(str) {
+  if (!str) return '—';
+  const [y,m,d]=str.split('-');
+  return ['Dom','Lun','Mar','Mie','Jue','Vie','Sab'][new Date(+y,+m-1,+d).getDay()]+' '+parseInt(d)+'/'+parseInt(m);
+}
+
+// ── Carga inicial ──────────────────────────────────────────────────────────────
+function cargarTodo() {
+  let pendiente = 2;
+  function check() { if (--pendiente === 0) { document.getElementById('loading-overlay').classList.add('hidden'); actualizarBadges(); renderTab(); } }
+
+  apiGet({ accion: 'proyectos' })
+    .then(data => { state.proyectos = data || []; check(); })
+    .catch(() => { state.proyectos = []; check(); });
+
+  apiGet({ accion: 'hoy' })
+    .then(data => { state.tareasHoy = data.tareasHoy || []; state.alertas = data.alertas || []; check(); })
+    .catch(() => { state.tareasHoy = []; state.alertas = []; check(); });
+}
+
+function actualizarBadges() {
+  const hoyCount = state.tareasHoy.length + state.alertas.length;
+  document.getElementById('badge-hoy').textContent = hoyCount;
+  const c = {relevamiento:0,instalacion:0,validacion:0,cerrado:0};
+  state.proyectos.forEach(p => {
+    if (p.estado==='Pendiente relevamiento') c.relevamiento++;
+    else if (p.estado==='Relevado'||p.estado==='Instalación programada') c.instalacion++;
+    else if (p.estado==='Instalado') c.validacion++;
+    else if (p.estado==='Cerrado') c.cerrado++;
+  });
+  Object.keys(c).forEach(k => document.getElementById('badge-'+k).textContent = c[k]);
+}
+
+// ── Tabs ───────────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  state.tab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab===tab));
+  renderTab();
+}
+
+function renderTab() {
+  const main = document.getElementById('main');
+  if (state.tab === 'hoy') { main.innerHTML = renderTabHoy(); return; }
+  let filtrados;
+  if (state.tab==='relevamiento') filtrados = state.proyectos.filter(p=>p.estado==='Pendiente relevamiento');
+  else if (state.tab==='instalacion') filtrados = state.proyectos.filter(p=>p.estado==='Relevado'||p.estado==='Instalación programada');
+  else if (state.tab==='validacion') filtrados = state.proyectos.filter(p=>p.estado==='Instalado');
+  else filtrados = state.proyectos.filter(p=>p.estado==='Cerrado');
+  if (!filtrados.length) {
+    const labels={relevamiento:'relevamientos pendientes',instalacion:'instalaciones pendientes',validacion:'validaciones pendientes',cerrado:'proyectos cerrados'};
+    main.innerHTML=`<div class="empty"><div class="empty-icon">✓</div><p>No hay ${labels[state.tab]}.</p></div>`;
+    return;
+  }
+  main.innerHTML = filtrados.map(p => renderCard(p)).join('');
+}
+
+// ── Tab HOY ────────────────────────────────────────────────────────────────────
+function renderTabHoy() {
+  const hoy = new Date();
+  const diasSemana = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const fechaLabel = `${diasSemana[hoy.getDay()]} ${hoy.getDate()} de ${meses[hoy.getMonth()]}`;
+
+  let html = '';
+
+  // Sección tareas de hoy
+  html += `<div class="section-header"><div class="section-header-label">Tareas de hoy — ${fechaLabel}</div><div class="section-header-line"></div></div>`;
+  if (!state.tareasHoy.length) {
+    html += `<div class="empty"><div class="empty-icon">☀️</div><p>No hay tareas programadas para hoy.</p></div>`;
+  } else {
+    state.tareasHoy.forEach(t => {
+      const tipoClass = t.tipo==='Relevamiento' ? 'tipo-relev' : 'tipo-inst';
+      const ecClass   = t.tipo==='Relevamiento' ? 'ec-relev'   : 'ec-inst';
+      html += `<div class="tarea-card">
+        <div class="tarea-hora">
+          <div class="tarea-hora-val">${t.horaInicio}</div>
+          <div class="tarea-hora-fin">${t.horaFin}</div>
+        </div>
+        <div class="tarea-divider"></div>
+        <div class="tarea-body">
+          <div class="tarea-tipo ${tipoClass}">${t.tipo}</div>
+          <div class="tarea-nombre">${t.clienteNombre}</div>
+          <div class="tarea-dir">${t.clienteDireccion}</div>
+          <div class="tarea-badge"><span class="estado-chip ${ecClass}">${t.estadoProy}</span></div>
+        </div>
+      </div>`;
+    });
+  }
+
+  // Sección alertas
+  html += `<div class="section-header" style="margin-top:28px"><div class="section-header-label">Requieren atención — más de 7 días sin cerrar</div><div class="section-header-line"></div></div>`;
+  if (!state.alertas.length) {
+    html += `<div class="empty"><div class="empty-icon">✓</div><p>Todos los proyectos están al día.</p></div>`;
+  } else {
+    state.alertas.forEach(a => {
+      const diasClass = a.diasTranscurridos >= 14 ? 'dias-crit' : 'dias-warn';
+      const ecClass = {
+        'Pendiente relevamiento':'ec-relev','Relevado':'ec-inst',
+        'Instalación programada':'ec-inst','Instalado':'ec-valida','Cerrado':'ec-cerrado'
+      }[a.estado]||'ec-relev';
+      html += `<div class="alerta-card" id="alerta-${a.id}">
+        <div class="alerta-header" onclick="toggleAlerta('${a.id}')">
+          <div class="alerta-left">
+            <div class="alerta-id">${a.id} · desde ${a.fechaCreacion}</div>
+            <div class="alerta-nombre">${a.clienteNombre}</div>
+            <div class="alerta-estado"><span class="estado-chip ${ecClass}">${a.estado}</span></div>
+          </div>
+          <div class="alerta-right">
+            <span class="dias-badge ${diasClass}">${a.diasTranscurridos} días</span>
+            <span class="alerta-chevron">▼</span>
+          </div>
+        </div>
+        <div class="alerta-body">
+          <div class="card-form">
+            <div class="form-title">Detalle del proyecto</div>
+            <div class="card-meta" style="padding:0 0 12px">
+              <div class="meta-item"><span class="meta-label">Vendedor</span><span class="meta-val">${a.vendedor}</span></div>
+              <div class="meta-item"><span class="meta-label">Producto</span><span class="meta-val">${a.producto}</span></div>
+              <div class="meta-item"><span class="meta-label">Factura</span><span class="meta-val">${a.nroFactura}</span></div>
+            </div>
+            <div style="font-size:13px;color:var(--muted);line-height:1.6;">
+              Este proyecto lleva <strong style="color:var(--${a.diasTranscurridos>=14?'red':'amber'})">${a.diasTranscurridos} días</strong> sin llegar al estado "Cerrado".<br>
+              Estado actual: <strong style="color:var(--text)">${a.estado}</strong>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    });
+  }
+  return html;
+}
+
+function toggleAlerta(id) {
+  const el = document.getElementById('alerta-'+id);
+  const isOpen = el.classList.contains('open');
+  document.querySelectorAll('.alerta-card.open').forEach(c=>c.classList.remove('open'));
+  if (!isOpen) el.classList.add('open');
+}
+
+// ── Cards de proyectos ────────────────────────────────────────────────────────
+function renderCard(p) {
+  const statusClass = {'Pendiente relevamiento':'ec-relev','Relevado':'ec-inst','Instalación programada':'ec-inst','Instalado':'ec-valida','Cerrado':'ec-cerrado'}[p.estado]||'ec-relev';
+  let bodyHtml = '';
+  if (p.estado==='Pendiente relevamiento') bodyHtml = renderFormRelevamiento(p);
+  else if (p.estado==='Relevado'||p.estado==='Instalación programada') bodyHtml = renderFormInstalacion(p);
+  else if (p.estado==='Instalado') bodyHtml = renderFormCalidad(p);
+
+  return `<div class="card" id="card-${p.id}">
+    <div class="card-header" onclick="toggleCard('${p.id}')">
+      <div class="card-left">
+        <div class="card-id">${p.id}</div>
+        <div class="card-name">${p.clienteNombre}</div>
+        <div class="card-addr">${p.clienteDireccion}</div>
+      </div>
+      <div class="card-right">
+        <span class="estado-chip ${statusClass}">${p.estado}</span>
+        <span class="card-date">${p.fechaRelevamiento ? 'Relev: '+formatDateHuman(p.fechaRelevamiento) : ''}</span>
+        ${p.fechaInstalacion?`<span class="card-date">Inst: ${formatDateHuman(p.fechaInstalacion)}</span>`:''}
+        <span class="card-chevron">▼</span>
+      </div>
+    </div>
+    <div class="card-meta">
+      <div class="meta-item"><span class="meta-label">Vendedor</span><span class="meta-val">${p.vendedor}</span></div>
+      <div class="meta-item"><span class="meta-label">Producto</span><span class="meta-val">${p.producto}</span></div>
+      <div class="meta-item"><span class="meta-label">Factura</span><span class="meta-val">${p.nroFactura}</span></div>
+    </div>
+    ${bodyHtml?`<div class="card-body">${bodyHtml}</div>`:''}
+  </div>`;
+}
+
+function toggleCard(id) {
+  const card = document.getElementById('card-'+id);
+  const isOpen = card.classList.contains('open');
+  document.querySelectorAll('.card.open').forEach(c=>c.classList.remove('open'));
+  if (!isOpen) {
+    card.classList.add('open');
+    const p = state.proyectos.find(x=>x.id===id);
+    if (p && (p.estado==='Pendiente relevamiento'||p.estado==='Relevado'||p.estado==='Instalación programada')) {
+      const now = new Date();
+      if (!state.calMes[id]) state.calMes[id]={year:now.getFullYear(),month:now.getMonth()};
+      cargarMesParaSlots(id, state.calMes[id].year, state.calMes[id].month);
+    }
+  }
+}
+
+// ── Formulario relevamiento ───────────────────────────────────────────────────
+function renderFormRelevamiento(p) {
+  return `<hr class="card-divider">
+  <div class="card-form">
+    <div class="form-title">Resultado del relevamiento</div>
+    <div class="form-row">
+      <div class="field"><label>M² relevados</label><input type="number" id="m2-${p.id}" placeholder="Ej: 28.5" step="0.1" min="0"/></div>
+      <div class="field"><label>Hs. estimadas de trabajo</label><input type="number" id="hs-${p.id}" placeholder="Ej: 4" step="0.5" min="0.5" max="8"/></div>
+    </div>
+    <div class="field"><label>Observaciones</label><textarea id="obs-${p.id}" placeholder="Paredes irregulares, acceso difícil, etc."></textarea></div>
+    <div id="msg-relev-${p.id}" class="msg"></div>
+    <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px;">
+      <div class="form-title">Fecha de instalación</div>
+      <div class="cal-mini">
+        <div class="cal-mini-nav">
+          <button class="cal-mini-btn" onclick="calMiniChange('${p.id}',-1)">←</button>
+          <span class="cal-mini-month" id="cal-mini-label-${p.id}"></span>
+          <button class="cal-mini-btn" onclick="calMiniChange('${p.id}',1)">→</button>
+        </div>
+        <div class="cal-mini-grid" id="cal-mini-grid-${p.id}"></div>
+      </div>
+      <div class="slots-section" id="slots-section-${p.id}">
+        <div class="slots-label" style="color:var(--hint)">Elegí primero una fecha</div>
+      </div>
+    </div>
+    <button class="btn btn-primary" id="btn-relev-${p.id}" onclick="confirmarRelevamiento('${p.id}')">
+      <div class="btn-spinner"></div>
+      <span id="btn-relev-text-${p.id}">Confirmar relevamiento y programar instalación</span>
+    </button>
+    <div id="msg-relev-ok-${p.id}" class="msg"></div>
+  </div>`;
+}
+
+// ── Formulario instalación ────────────────────────────────────────────────────
+function renderFormInstalacion(p) {
+  return `<hr class="card-divider">
+  <div class="card-form">
+    <div class="form-title">Registrar instalación realizada</div>
+    <div class="form-row">
+      <div class="field"><label>Hora inicio real</label><input type="time" id="hi-${p.id}"/></div>
+      <div class="field"><label>Hora fin real</label><input type="time" id="hf-${p.id}"/></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>M² instalados</label><input type="number" id="m2i-${p.id}" placeholder="Ej: 27.0" step="0.1" min="0"/></div>
+      <div class="field"><label>Motivo desvío (si hubo)</label><input type="text" id="desv-${p.id}" placeholder="Opcional"/></div>
+    </div>
+    <div class="field">
+      <label>Checklist calidad</label>
+      <select id="chk-${p.id}">
+        <option value="">Seleccioná...</option>
+        <option value="si">✓ Todos los ítems aprobados</option>
+        <option value="no">✗ Hay ítems pendientes</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" id="btn-inst-${p.id}" onclick="confirmarInstalacion('${p.id}')">
+      <div class="btn-spinner"></div>
+      <span id="btn-inst-text-${p.id}">Registrar instalación</span>
+    </button>
+    <div id="msg-inst-${p.id}" class="msg"></div>
+  </div>`;
+}
+
+// ── Formulario validación ─────────────────────────────────────────────────────
+function renderFormCalidad(p) {
+  return `<hr class="card-divider">
+  <div class="card-form">
+    <div class="form-title">Pendiente de aprobación del cliente</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6;">Compartí el link con el cliente para que apruebe el trabajo digitalmente.</p>
+    <button class="btn btn-primary" onclick="copiarLink('${p.id}','${p.linkAprobacion}')">
+      <span id="btn-link-text-${p.id}">Copiar link de aprobación</span>
+    </button>
+    <div id="msg-link-${p.id}" class="msg"></div>
+  </div>`;
+}
+
+// ── Calendario mini ───────────────────────────────────────────────────────────
+function renderCalMiniGrid(idProy) {
+  const {year,month} = state.calMes[idProy]||{year:new Date().getFullYear(),month:new Date().getMonth()};
+  const label = document.getElementById('cal-mini-label-'+idProy);
+  if (label) label.textContent = MESES[month]+' '+year;
+  const grid = document.getElementById('cal-mini-grid-'+idProy);
+  if (!grid) return;
+  grid.innerHTML='';
+  DIAS_CORTO.forEach(d=>{const el=document.createElement('div');el.className='cal-mini-dow';el.textContent=d;grid.appendChild(el);});
+  const firstDay=new Date(year,month,1).getDay();
+  const days=new Date(year,month+1,0).getDate();
+  const today=new Date();
+  for(let i=0;i<firstDay;i++){const el=document.createElement('div');el.className='cal-mini-day empty';grid.appendChild(el);}
+  for(let d=1;d<=days;d++){
+    const el=document.createElement('div');el.className='cal-mini-day';el.textContent=d;
+    const dt=new Date(year,month,d);
+    const isPast=dt<new Date(today.getFullYear(),today.getMonth(),today.getDate());
+    const isToday=d===today.getDate()&&month===today.getMonth()&&year===today.getFullYear();
+    const isSun=dt.getDay()===0;
+    const dateStr=formatDate(dt);
+    if(isPast||isSun)el.classList.add('past');
+    if(isToday)el.classList.add('today');
+    if(state.selectedFecha[idProy]===dateStr)el.classList.add('selected');
+    if(!isPast&&!isSun)el.onclick=()=>seleccionarFechaInst(idProy,dateStr,year,month);
+    grid.appendChild(el);
+  }
+}
+
+function calMiniChange(idProy,dir){
+  if(!state.calMes[idProy]){const now=new Date();state.calMes[idProy]={year:now.getFullYear(),month:now.getMonth()};}
+  state.calMes[idProy].month+=dir;
+  if(state.calMes[idProy].month>11){state.calMes[idProy].month=0;state.calMes[idProy].year++;}
+  if(state.calMes[idProy].month<0){state.calMes[idProy].month=11;state.calMes[idProy].year--;}
+  cargarMesParaSlots(idProy,state.calMes[idProy].year,state.calMes[idProy].month);
+}
+
+function cargarMesParaSlots(idProy,year,month){
+  const key=year+'-'+month;
+  if(state.cache[key]){renderCalMiniGrid(idProy);return;}
+  apiGet({ accion:'bloques', anio:year, mes:month })
+    .then(data=>{ state.cache[key]=data; renderCalMiniGrid(idProy); })
+    .catch(()=>{});
+}
+
+function seleccionarFechaInst(idProy,dateStr,year,month){
+  state.selectedFecha[idProy]=dateStr;
+  state.selectedSlot[idProy]=null;
+  renderCalMiniGrid(idProy);
+  const hsEstimadas=parseFloat(document.getElementById('hs-'+idProy)?.value||1);
+  const key=year+'-'+month;
+  const cached=state.cache[key];
+  if(!cached)return;
+  const bloquesDelDia=cached.bloques[dateStr]||[];
+  const cfg=cached.config;
+  const todayStr=formatDate(new Date());
+  let ini=cfg.jornadaIni;
+  if(dateStr===todayStr){const now=new Date();ini=Math.ceil((now.getHours()*60+now.getMinutes())/30)*30;}
+  const durMin=60+Math.round((hsEstimadas||1)*60);
+  const slots=[];
+  for(let t=ini;t+durMin<=cfg.jornadaFin;t+=30){
+    const fin=t+durMin;
+    if(bloquesDelDia.every(b=>fin<=b.ini||t>=b.fin))slots.push({inicio:minToTime(t),fin:minToTime(fin)});
+  }
+  const section=document.getElementById('slots-section-'+idProy);
+  if(!section)return;
+  if(!slots.length){section.innerHTML=`<div class="slots-label" style="color:var(--red)">Sin horarios disponibles este día</div>`;return;}
+  let html=`<div class="slots-label">Horarios — ${formatDateHuman(dateStr)}</div><div class="slots-scroll">`;
+  slots.forEach((s,i)=>{
+    const sel=state.selectedSlot[idProy]?.inicio===s.inicio?'selected':'';
+    html+=`<div class="slot-chip ${sel}" id="schip-${idProy}-${i}" onclick="selectSlotInst('${idProy}',${i},'${s.inicio}','${s.fin}')"><div class="slot-chip-time">${s.inicio}</div><div class="slot-chip-time" style="font-size:10px;color:var(--hint)">→ ${s.fin}</div></div>`;
+  });
+  html+=`</div>`;
+  section.innerHTML=html;
+}
+
+function selectSlotInst(idProy,i,inicio,fin){
+  state.selectedSlot[idProy]={inicio,fin};
+  document.querySelectorAll('[id^="schip-'+idProy+'-"]').forEach(el=>el.classList.remove('selected'));
+  document.getElementById('schip-'+idProy+'-'+i)?.classList.add('selected');
+}
+
+// ── Confirmar relevamiento ────────────────────────────────────────────────────
+function confirmarRelevamiento(idProy){
+  const m2=document.getElementById('m2-'+idProy).value.trim();
+  const hs=document.getElementById('hs-'+idProy).value.trim();
+  const obs=document.getElementById('obs-'+idProy).value.trim();
+  const fecha=state.selectedFecha[idProy];
+  const slot=state.selectedSlot[idProy];
+  const errEl=document.getElementById('msg-relev-'+idProy);
+  errEl.className='msg';
+  if(!m2||!hs){errEl.textContent='Completá m² y horas estimadas.';errEl.className='msg error visible';return;}
+  if(!fecha||!slot){errEl.textContent='Elegí una fecha y horario de instalación.';errEl.className='msg error visible';return;}
+  const btn=document.getElementById('btn-relev-'+idProy);
+  btn.classList.add('loading');btn.disabled=true;
+  document.getElementById('btn-relev-text-'+idProy).textContent='Guardando...';
+  apiPost('actualizarRelevamiento', {idProyecto:idProy,m2Relevados:parseFloat(m2),hsEstimadas:parseFloat(hs),observaciones:obs,fechaInstalacion:fecha,horaInstalacion:slot.inicio})
+    .then(res=>{
+      btn.classList.remove('loading');
+      if(res.ok){
+        const okEl=document.getElementById('msg-relev-ok-'+idProy);
+        okEl.textContent='Guardado. Instalación: '+formatDateHuman(fecha)+' '+slot.inicio+' – '+res.horaFin;
+        okEl.className='msg success visible';
+        document.getElementById('btn-relev-text-'+idProy).textContent='Guardado ✓';
+        const p=state.proyectos.find(x=>x.id===idProy);
+        if(p)p.estado='Instalación programada';
+        actualizarBadges();
+      }else{
+        errEl.textContent='Error: '+res.error;errEl.className='msg error visible';
+        btn.disabled=false;document.getElementById('btn-relev-text-'+idProy).textContent='Confirmar relevamiento y programar instalación';
+      }
+    })
+    .catch(()=>{
+      btn.classList.remove('loading');btn.disabled=false;
+      document.getElementById('btn-relev-text-'+idProy).textContent='Confirmar relevamiento y programar instalación';
+      errEl.textContent='Error de conexión.';errEl.className='msg error visible';
+    });
+}
+
+// ── Confirmar instalación ─────────────────────────────────────────────────────
+function confirmarInstalacion(idProy){
+  const hi=document.getElementById('hi-'+idProy).value;
+  const hf=document.getElementById('hf-'+idProy).value;
+  const m2=document.getElementById('m2i-'+idProy).value.trim();
+  const desv=document.getElementById('desv-'+idProy).value.trim();
+  const chk=document.getElementById('chk-'+idProy).value;
+  const errEl=document.getElementById('msg-inst-'+idProy);
+  errEl.className='msg';
+  if(!hi||!hf||!m2||!chk){errEl.textContent='Completá todos los campos.';errEl.className='msg error visible';return;}
+  const btn=document.getElementById('btn-inst-'+idProy);
+  btn.classList.add('loading');btn.disabled=true;
+  document.getElementById('btn-inst-text-'+idProy).textContent='Guardando...';
+  const p=state.proyectos.find(x=>x.id===idProy);
+  apiPost('cerrarControlCalidad', {idProyecto:idProy,fechaInstalacion:p?.fechaInstalacion||'',horaInicioReal:hi,horaFinReal:hf,m2Instalados:parseFloat(m2),motivoDesvio:desv,checklistOK:chk==='si'})
+    .then(res=>{
+      btn.classList.remove('loading');
+      if(res.ok){
+        const okEl=document.getElementById('msg-inst-'+idProy);
+        okEl.textContent='Registrado. '+res.hsReales+'hs reales, '+res.m2porHora+' m²/h. Desvío: '+(res.desvio>0?'+':'')+res.desvio+'hs';
+        okEl.className='msg success visible';
+        document.getElementById('btn-inst-text-'+idProy).textContent='Registrado ✓';
+        if(p)p.estado='Instalado';
+        actualizarBadges();
+      }else{
+        errEl.textContent='Error: '+res.error;errEl.className='msg error visible';
+        btn.disabled=false;document.getElementById('btn-inst-text-'+idProy).textContent='Registrar instalación';
+      }
+    })
+    .catch(()=>{
+      btn.classList.remove('loading');btn.disabled=false;
+      document.getElementById('btn-inst-text-'+idProy).textContent='Registrar instalación';
+      errEl.textContent='Error de conexión.';errEl.className='msg error visible';
+    });
+}
+
+// ── Copiar link ───────────────────────────────────────────────────────────────
+function copiarLink(idProy,link){
+  if(!link||link==='undefined'){
+    const el=document.getElementById('msg-link-'+idProy);
+    el.textContent='Link no disponible aún.';el.className='msg error visible';return;
+  }
+  navigator.clipboard.writeText(link).then(()=>{
+    document.getElementById('btn-link-text-'+idProy).textContent='Link copiado ✓';
+    const el=document.getElementById('msg-link-'+idProy);
+    el.textContent='Pegá el link en WhatsApp y enviáselo al cliente.';el.className='msg success visible';
+  });
+}
+
+// ── API ───────────────────────────────────────────────────────────────────────
+const API_URL = 'https://script.google.com/macros/s/AKfycbwo5nWH5iYhVpSKLzxBKz1nvhHrS2M1unnOZznxCJzrWPJGIJSubv5kMrOn6Yd_CfJV/exec';
+
+async function apiGet(params) {
+  const url = API_URL + '?' + new URLSearchParams(params);
+  const res = await fetch(url);
+  return res.json();
+}
+
+async function apiPost(accion, datos) {
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ accion, datos })
+  });
+  return res.json();
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+cargarTodo();
+</script>
+</body>
+</html>
