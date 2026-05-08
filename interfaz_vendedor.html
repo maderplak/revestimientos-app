@@ -297,7 +297,7 @@ function confirmarVenta() {
   const btn = document.getElementById('btn-confirmar');
   btn.classList.add('loading'); btn.disabled=true;
   document.getElementById('btn-text').textContent='Guardando...';
-  apiPost('registrarProyecto', {vendedor,clienteNombre:nombre,clienteTelefono:telefono,clienteDireccion:direccion,nroFactura:factura,producto,fecha:state.selectedDate,horaInicio:state.selectedSlot.inicio})
+  apiWrite('registrarProyecto', {vendedor,clienteNombre:nombre,clienteTelefono:telefono,clienteDireccion:direccion,nroFactura:factura,producto,fecha:state.selectedDate,horaInicio:state.selectedSlot.inicio})
     .then(res => {
       btn.classList.remove('loading');
       if (res.ok) {
@@ -325,21 +325,22 @@ function confirmarVenta() {
     });
 }
 
-// URL de la API — reemplazá con tu URL de Apps Script
-const API_URL = 'https://script.google.com/macros/s/AKfycbwo5nWH5iYhVpSKLzxBKz1nvhHrS2M1unnOZznxCJzrWPJGIJSubv5kMrOn6Yd_CfJV/exec';
+// URL de la API
+const API_URL = 'https://script.google.com/macros/s/AKfycbwV575o3ZEghQyYhpU12MnAfUxk7fPjcCBnNc2rPoBvy7WaUQO2yhs_y4rsnldqOgCV/exec';
 
 async function apiGet(params) {
   const url = API_URL + '?' + new URLSearchParams(params);
-  const res = await fetch(url);
+  const res = await fetch(url, {redirect: 'follow'});
   return res.json();
 }
 
-async function apiPost(accion, datos) {
-  const res = await fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ accion, datos })
+async function apiWrite(accion, datos) {
+  const params = new URLSearchParams({
+    accion,
+    datos: encodeURIComponent(JSON.stringify(datos))
   });
+  const url = API_URL + '?' + params;
+  const res = await fetch(url, {redirect: 'follow'});
   return res.json();
 }
 
