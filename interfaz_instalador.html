@@ -566,7 +566,7 @@ function confirmarRelevamiento(idProy){
   const btn=document.getElementById('btn-relev-'+idProy);
   btn.classList.add('loading');btn.disabled=true;
   document.getElementById('btn-relev-text-'+idProy).textContent='Guardando...';
-  apiPost('actualizarRelevamiento', {idProyecto:idProy,m2Relevados:parseFloat(m2),hsEstimadas:parseFloat(hs),observaciones:obs,fechaInstalacion:fecha,horaInstalacion:slot.inicio})
+  apiWrite('actualizarRelevamiento', {idProyecto:idProy,m2Relevados:parseFloat(m2),hsEstimadas:parseFloat(hs),observaciones:obs,fechaInstalacion:fecha,horaInstalacion:slot.inicio})
     .then(res=>{
       btn.classList.remove('loading');
       if(res.ok){
@@ -603,7 +603,7 @@ function confirmarInstalacion(idProy){
   btn.classList.add('loading');btn.disabled=true;
   document.getElementById('btn-inst-text-'+idProy).textContent='Guardando...';
   const p=state.proyectos.find(x=>x.id===idProy);
-  apiPost('cerrarControlCalidad', {idProyecto:idProy,fechaInstalacion:p?.fechaInstalacion||'',horaInicioReal:hi,horaFinReal:hf,m2Instalados:parseFloat(m2),motivoDesvio:desv,checklistOK:chk==='si'})
+  apiWrite('cerrarControlCalidad', {idProyecto:idProy,fechaInstalacion:p?.fechaInstalacion||'',horaInicioReal:hi,horaFinReal:hf,m2Instalados:parseFloat(m2),motivoDesvio:desv,checklistOK:chk==='si'})
     .then(res=>{
       btn.classList.remove('loading');
       if(res.ok){
@@ -638,21 +638,23 @@ function copiarLink(idProy,link){
   });
 }
 
-// ── API ───────────────────────────────────────────────────────────────────────
-const API_URL = 'https://script.google.com/macros/s/AKfycbwo5nWH5iYhVpSKLzxBKz1nvhHrS2M1unnOZznxCJzrWPJGIJSubv5kMrOn6Yd_CfJV/exec';
+// ── API ─────────────────────────────────────────────────────────────────────
+// URL de la API
+const API_URL = 'https://script.google.com/macros/s/AKfycbwV575o3ZEghQyYhpU12MnAfUxk7fPjcCBnNc2rPoBvy7WaUQO2yhs_y4rsnldqOgCV/exec';
 
 async function apiGet(params) {
   const url = API_URL + '?' + new URLSearchParams(params);
-  const res = await fetch(url);
+  const res = await fetch(url, {redirect: 'follow'});
   return res.json();
 }
 
-async function apiPost(accion, datos) {
-  const res = await fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ accion, datos })
+async function apiWrite(accion, datos) {
+  const params = new URLSearchParams({
+    accion,
+    datos: encodeURIComponent(JSON.stringify(datos))
   });
+  const url = API_URL + '?' + params;
+  const res = await fetch(url, {redirect: 'follow'});
   return res.json();
 }
 
