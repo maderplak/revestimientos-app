@@ -26,22 +26,19 @@ body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text)
 /* LOADING */
 .loading-overlay { position:fixed; inset:0; background:rgba(245,243,239,.92); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; z-index:999; transition:opacity .3s; }
 .loading-overlay.hidden { opacity:0; pointer-events:none; }
-.loading-overlay p { font-size:13px; color:var(--muted); }
 .spinner-lg { width:34px; height:34px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
 
 /* TABS */
 .tabs { display:flex; border-bottom:1px solid var(--border); background:var(--surface); overflow-x:auto; padding:0 16px; scrollbar-width:none; }
-.tabs::-webkit-scrollbar { display:none; }
 .tab { padding:14px 16px; font-size:13px; font-weight:500; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; white-space:nowrap; transition:all .15s; display:flex; align-items:center; gap:7px; }
-.tab:hover { color:var(--text); }
 .tab.active { color:var(--text); border-bottom-color:var(--accent); }
 .tab-badge { font-size:10px; font-weight:600; padding:2px 6px; border-radius:10px; font-family:'DM Mono',monospace; }
 .badge-green  { background:var(--accent-bg); color:var(--accent); border:1px solid var(--accent-bd); }
 .badge-amber  { background:var(--amber-bg);  color:var(--amber);  border:1px solid var(--amber-bd); }
 .badge-blue   { background:var(--blue-bg);   color:var(--blue);   border:1px solid var(--blue-bd); }
 
-/* LAYOUT NUEVA VENTA */
+/* LAYOUT */
 .layout { display:grid; grid-template-columns:400px 1fr; min-height:calc(100vh - 97px); }
 @media(max-width:860px){ .layout { grid-template-columns:1fr; } }
 .panel-left { background:var(--surface); border-right:1px solid var(--border); padding:24px; display:flex; flex-direction:column; }
@@ -50,60 +47,61 @@ body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text)
 /* CALENDARIO */
 .section-title { font-size:11px; font-weight:500; color:var(--hint); text-transform:uppercase; letter-spacing:.08em; margin-bottom:14px; }
 .cal-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
-.cal-nav-btn { background:none; border:1px solid var(--border); border-radius:6px; width:30px; height:30px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:13px; transition:all .15s; }
-.cal-nav-btn:hover { background:var(--bg); color:var(--text); }
-.cal-month { font-size:14px; font-weight:500; color:var(--text); }
+.cal-nav-btn { background:none; border:1px solid var(--border); border-radius:6px; width:30px; height:30px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--muted); }
+.cal-month { font-size:14px; font-weight:500; }
 .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
-.cal-dow { text-align:center; font-size:10px; font-weight:500; color:var(--hint); padding:3px 0 8px; text-transform:uppercase; letter-spacing:.05em; }
-.cal-day { aspect-ratio:1; display:flex; align-items:center; justify-content:center; border-radius:7px; font-size:12px; cursor:pointer; color:var(--text); transition:all .12s; border:1px solid transparent; position:relative; }
-.cal-day:hover:not(.empty):not(.past) { background:var(--bg); border-color:var(--border); }
+.cal-dow { text-align:center; font-size:10px; color:var(--hint); padding:3px 0 8px; text-transform:uppercase; }
+.cal-day { aspect-ratio:1; display:flex; align-items:center; justify-content:center; border-radius:7px; font-size:12px; cursor:pointer; position:relative; }
 .cal-day.empty, .cal-day.past { cursor:default; color:var(--hint); }
 .cal-day.today { font-weight:600; color:var(--accent); }
-.cal-day.today::after { content:''; position:absolute; bottom:4px; left:50%; transform:translateX(-50%); width:4px; height:4px; background:var(--accent); border-radius:50%; }
-.cal-day.selected { background:var(--accent); color:#fff; font-weight:500; }
+.cal-day.selected { background:var(--accent); color:#fff; }
 .cal-day.has-events::before { content:''; position:absolute; top:4px; right:4px; width:4px; height:4px; background:#E8A020; border-radius:50%; }
 
 /* SLOTS */
 .slots-wrap { margin-top:20px; flex:1; overflow-y:auto; }
-.slots-date-label { font-size:13px; font-weight:500; margin-bottom:10px; }
-.slots-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
-.slot { padding:9px 11px; border-radius:7px; border:1px solid var(--border); background:#F0F7F4; cursor:pointer; transition:all .12s; }
-.slot:hover { border-color:var(--accent-bd); background:var(--accent-bg); }
+.slots-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:10px; }
+.slot { padding:9px 11px; border-radius:7px; border:1px solid var(--border); background:#F0F7F4; cursor:pointer; }
 .slot.selected { border-color:var(--accent); background:var(--accent-bg); }
 .slot-time { font-size:12px; font-weight:500; font-family:'DM Mono',monospace; }
 
-/* FORM */
-.field input, .field select { font-family:'DM Sans',sans-serif; font-size:14px; border:1px solid var(--border); border-radius:var(--radius); padding:10px 12px; width:100%; outline:none; }
-.btn { width:100%; padding:13px; border:none; border-radius:var(--radius); font-weight:500; cursor:pointer; transition:all .15s; display:flex; align-items:center; justify-content:center; gap:8px; }
-.btn-primary { background:var(--accent); color:#fff; }
-.btn-primary:hover { background:#154f3a; }
-
-/* CARDS PROYECTOS */
-.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:12px; padding:16px; }
-.card-name { font-size:15px; font-weight:600; margin-bottom:4px; }
-.card-info { font-size:12px; color:var(--muted); margin-bottom:10px; }
-.status-chip { display:inline-block; font-size:10px; font-weight:600; padding:3px 10px; border-radius:20px; text-transform:uppercase; }
+/* FORM & CARDS */
+.main { max-width:800px; margin:0 auto; padding:20px 16px 40px; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:10px; padding:16px; }
+.card-id { font-size:11px; font-family:'DM Mono',monospace; color:var(--muted); }
+.card-name { font-size:15px; font-weight:600; margin:4px 0; }
+.card-addr { font-size:12px; color:var(--muted); }
+.status-chip { display:inline-block; font-size:11px; font-weight:600; padding:3px 9px; border-radius:20px; margin-top:8px; }
 .s-pendiente { background:var(--amber-bg); color:var(--amber); border:1px solid var(--amber-bd); }
 .s-presupuesto { background:#FFF0F5; color:#A0186A; border:1px solid #F0A0C8; }
 .s-confirmada { background:var(--blue-bg); color:var(--blue); border:1px solid var(--blue-bd); }
 .s-programada { background:var(--accent-bg); color:var(--accent); border:1px solid var(--accent-bd); }
-.card-next-action { font-size:11px; color:var(--accent); font-weight:600; margin-top:8px; }
+
+.field { display:flex; flex-direction:column; gap:5px; margin-bottom:12px; }
+.field label { font-size:12px; font-weight:500; color:var(--muted); }
+.field input, .field select { font-family:inherit; font-size:14px; padding:10px; border:1px solid var(--border); border-radius:var(--radius); width:100%; }
+.btn { width:100%; padding:13px; border:none; border-radius:var(--radius); font-weight:600; cursor:pointer; background:var(--accent); color:#fff; transition: opacity .2s; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.msg { padding:10px; border-radius:var(--radius); font-size:13px; margin-bottom:15px; display:none; }
+.msg.visible { display:block; }
+.msg.error { background:#FEE; color:var(--danger); }
+.msg.success { background:var(--accent-bg); color:var(--accent); }
 </style>
 </head>
-<body>
+<body onload="init()">
 
 <div class="loading-overlay" id="loading-overlay">
   <div class="spinner-lg"></div>
-  <p>Sincronizando datos...</p>
+  <p>Cargando datos del sistema...</p>
 </div>
 
 <div class="topbar">
-  <div class="brand"><div class="brand-dot"></div>Revestimientos — Vendedor</div>
+  <div class="brand"><div class="brand-dot"></div>Revestimientos — Panel Vendedor</div>
   <div class="topbar-right" id="clock"></div>
 </div>
 
 <div class="tabs">
   <div class="tab active" data-tab="nueva" onclick="switchTab('nueva')">Nueva solicitud</div>
+  <div class="tab" data-tab="presupuesto" onclick="switchTab('presupuesto')">Confirmar Venta <span class="tab-badge badge-amber" id="badge-presupuesto">0</span></div>
   <div class="tab" data-tab="activos" onclick="switchTab('activos')">Proyectos activos <span class="tab-badge badge-blue" id="badge-activos">0</span></div>
 </div>
 
@@ -127,72 +125,61 @@ const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto'
 const DIAS_CORTO = ['Do','Lu','Ma','Mi','Ju','Vi','Sa'];
 const VENDEDORES = ['Claudia Rodriguez','Alejandro Gurrea','Paola Alvarez','Daniel Dulor','Nestor Lombardini','Manuel Sosa'];
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
 async function apiGet(params) {
   const url = API_URL + '?' + new URLSearchParams(params);
   const res = await fetch(url, {redirect:'follow'});
   return res.json();
 }
-
 async function apiWrite(accion, datos) {
   const params = new URLSearchParams({ accion, datos: encodeURIComponent(JSON.stringify(datos)) });
   const res = await fetch(API_URL + '?' + params, {redirect:'follow'});
   return res.json();
 }
+function formatDate(d) { return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function minToTime(m) { return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'); }
 
-// ── Inicialización ───────────────────────────────────────────────────────────
+// ── Inicialización ────────────────────────────────────────────────────────────
 function init() {
-  document.getElementById('loading-overlay').classList.remove('hidden');
-  
-  // Cargar proyectos y calendario en paralelo para velocidad inicial
+  // Cargar proyectos y el mes actual simultáneamente
   Promise.all([
-    cargarProyectos(),
+    apiGet({accion:'getProyectosVendedor'}).then(data => state.proyectos = data || []),
     cargarMes(state.viewYear, state.viewMonth)
   ]).then(() => {
+    actualizarBadges();
     document.getElementById('loading-overlay').classList.add('hidden');
-    switchTab('nueva'); // Esto gatilla renderTabNuevaVenta y renderCalendar
+    switchTab('nueva');
   });
 }
 
-function updateClock() {
-  const now = new Date();
-  document.getElementById('clock').textContent = now.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'short'}) + ' ' + now.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
-}
-setInterval(updateClock, 10000); updateClock();
-
-// ── Datos ────────────────────────────────────────────────────────────────────
-async function cargarProyectos() {
-  try {
-    const data = await apiGet({accion:'getProyectosVendedor'});
-    state.proyectos = data || [];
-    actualizarBadges();
-  } catch (e) { console.error("Error al cargar proyectos"); }
-}
-
-async function cargarMes(anio, mes) {
-  const key = `${anio}-${mes}`;
-  if(state.cache[key]) return;
-  try {
-    const data = await apiGet({accion:'bloques', anio, mes});
+function cargarMes(anio, mes) {
+  const key = anio + '-' + mes;
+  if (state.cache[key]) return Promise.resolve();
+  return apiGet({accion:'bloques', anio, mes}).then(data => {
     state.cache[key] = data;
-  } catch (e) { console.error("Error al cargar mes"); }
+  });
 }
 
 function actualizarBadges() {
+  const presup = state.proyectos.filter(p => p.estado === 'Presupuesto pendiente').length;
   const activos = state.proyectos.filter(p => p.estado !== 'Cerrado').length;
+  document.getElementById('badge-presupuesto').textContent = presup;
   document.getElementById('badge-activos').textContent = activos;
 }
 
-// ── Navegación de Tabs ───────────────────────────────────────────────────────
+// ── Tabs ──────────────────────────────────────────────────────────────────────
 function switchTab(tab) {
   state.tab = tab;
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab===tab));
   const content = document.getElementById('tab-content');
   
   if (tab === 'nueva') {
     content.innerHTML = renderTabNuevaVenta();
-    renderCalendar(); // CORRECCIÓN: Renderiza el calendario ni bien se abre la pestaña
+    renderCalendar();
+  } else if (tab === 'presupuesto') {
+    content.innerHTML = '<div class="main">' + renderTabPresupuesto() + '</div>';
   } else {
-    content.innerHTML = '<div style="max-width:800px; margin:20px auto; padding:0 16px;">' + renderTabActivos() + '</div>';
+    content.innerHTML = '<div class="main">' + renderTabActivos() + '</div>';
   }
 }
 
@@ -200,182 +187,183 @@ function switchTab(tab) {
 function renderTabNuevaVenta() {
   return `<div class="layout">
     <div class="panel-left">
-      <div class="section-title">Calendario de Relevamientos</div>
+      <div class="section-title">Turnos Relevamiento</div>
       <div class="cal-nav">
         <button class="cal-nav-btn" onclick="changeMonth(-1)">←</button>
         <span class="cal-month" id="cal-month-label">${MESES[state.viewMonth]} ${state.viewYear}</span>
         <button class="cal-nav-btn" onclick="changeMonth(1)">→</button>
       </div>
       <div class="cal-grid" id="cal-grid"></div>
-      <div class="slots-wrap" id="slots-wrap">
-        <div style="text-align:center; padding:40px; color:var(--hint); font-size:13px;">Elegí un día para ver disponibilidad</div>
-      </div>
+      <div class="slots-wrap" id="slots-wrap"><div style="color:var(--hint);font-size:13px;text-align:center;padding:20px">Seleccioná un día</div></div>
     </div>
     <div class="panel-right" id="panel-right">
-      <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:var(--hint);">
-        <p>Seleccioná un turno para cargar los datos del cliente</p>
+      <div style="text-align:center;padding-top:100px;color:var(--hint)">
+        <p>Elegí un día y horario para cargar la solicitud</p>
       </div>
     </div>
   </div>`;
 }
 
-// ── Lógica de Calendario ──────────────────────────────────────────────────────
 function renderCalendar() {
   const grid = document.getElementById('cal-grid');
   if(!grid) return;
   grid.innerHTML = '';
+  DIAS_CORTO.forEach(d => { const el=document.createElement('div'); el.className='cal-dow'; el.textContent=d; grid.appendChild(el); });
   
-  DIAS_CORTO.forEach(d => {
-    const el = document.createElement('div'); el.className = 'cal-dow'; el.textContent = d; grid.appendChild(el);
-  });
-
   const firstDay = new Date(state.viewYear, state.viewMonth, 1).getDay();
-  const daysInMonth = new Date(state.viewYear, state.viewMonth + 1, 0).getDate();
-  const today = new Date();
-  const cacheKey = `${state.viewYear}-${state.viewMonth}`;
-  const bloques = state.cache[cacheKey]?.bloques || {};
+  const days = new Date(state.viewYear, state.viewMonth + 1, 0).getDate();
+  const todayStr = formatDate(new Date());
+  const key = state.viewYear + '-' + state.viewMonth;
+  const bloques = (state.cache[key] && state.cache[key].bloques) ? state.cache[key].bloques : {};
 
-  for(let i=0; i<firstDay; i++) {
-    const el = document.createElement('div'); el.className = 'cal-day empty'; grid.appendChild(el);
-  }
-
-  for(let d=1; d<=daysInMonth; d++) {
-    const dateStr = `${state.viewYear}-${String(state.viewMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const el = document.createElement('div');
-    el.className = 'cal-day';
-    el.textContent = d;
-
+  for(let i=0; i<firstDay; i++) grid.appendChild(document.createElement('div'));
+  
+  for(let d=1; d<=days; d++) {
     const dt = new Date(state.viewYear, state.viewMonth, d);
-    if(dt < new Date(today.getFullYear(), today.getMonth(), today.getDate())) el.classList.add('past');
-    if(dt.getDay() === 0) el.classList.add('past'); // Domingos no disponibles
-    
-    if(d === today.getDate() && state.viewMonth === today.getMonth()) el.classList.add('today');
+    const dateStr = formatDate(dt);
+    const el = document.createElement('div');
+    el.className = 'cal-day' + (dateStr === todayStr ? ' today' : '') + (state.selectedDate === dateStr ? ' selected' : '');
     if(bloques[dateStr]) el.classList.add('has-events');
-    if(state.selectedDate === dateStr) el.classList.add('selected');
-
-    if(!el.classList.contains('past')) {
-      el.onclick = () => selectDate(dateStr);
-    }
+    el.textContent = d;
+    el.onclick = () => selectDate(dateStr);
     grid.appendChild(el);
   }
 }
 
-async function changeMonth(dir) {
+function changeMonth(dir) {
   state.viewMonth += dir;
   if(state.viewMonth > 11) { state.viewMonth = 0; state.viewYear++; }
-  else if(state.viewMonth < 0) { state.viewMonth = 11; state.viewYear--; }
-  
-  document.getElementById('cal-month-label').textContent = `${MESES[state.viewMonth]} ${state.viewYear}`;
-  await cargarMes(state.viewYear, state.viewMonth);
-  renderCalendar();
+  if(state.viewMonth < 0) { state.viewMonth = 11; state.viewYear--; }
+  document.getElementById('loading-overlay').classList.remove('hidden');
+  cargarMes(state.viewYear, state.viewMonth).then(() => {
+    document.getElementById('loading-overlay').classList.add('hidden');
+    renderCalendar();
+    document.getElementById('cal-month-label').textContent = MESES[state.viewMonth] + ' ' + state.viewYear;
+  });
 }
 
 function selectDate(dateStr) {
   state.selectedDate = dateStr;
   renderCalendar();
+  const key = state.viewYear + '-' + state.viewMonth;
+  const cfg = state.cache[key].config;
+  const bloquesDia = state.cache[key].bloques[dateStr] || [];
   
-  const cacheKey = `${state.viewYear}-${state.viewMonth}`;
-  const cfg = state.cache[cacheKey]?.config || { jornadaIni: 480, jornadaFin: 1080, durRelev: 60 };
-  const bloquesDia = state.cache[cacheKey]?.bloques?.[dateStr] || [];
-  
-  const slots = [];
+  let slots = [];
   for(let t = cfg.jornadaIni; t + cfg.durRelev <= cfg.jornadaFin; t += 30) {
-    if(bloquesDia.every(b => (t + cfg.durRelev) <= b.ini || t >= b.fin)) {
-      slots.push({ inicio: formatMin(t), fin: formatMin(t + cfg.durRelev) });
+    if(bloquesDia.every(b => (t + cfg.durRelev <= b.ini || t >= b.fin))) {
+      slots.push({ inicio: minToTime(t), fin: minToTime(t + cfg.durRelev) });
     }
   }
-
   state.slots = slots;
+  
   const wrap = document.getElementById('slots-wrap');
-  wrap.innerHTML = `<div class="slots-date-label">Turnos para el ${dateStr.split('-').reverse().join('/')}</div><div class="slots-grid">` +
-    slots.map((s, i) => `<div class="slot" onclick="selectSlot(${i})"><div class="slot-time">${s.inicio} - ${s.fin}</div></div>`).join('') + `</div>`;
+  wrap.innerHTML = '<div class="slots-grid">' + slots.map((s,i) => `
+    <div class="slot" onclick="selectSlot(${i})" id="slot-${i}">
+      <div class="slot-time">${s.inicio}</div>
+    </div>`).join('') + '</div>';
 }
-
-function formatMin(m) { return `${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`; }
 
 function selectSlot(i) {
   state.selectedSlot = state.slots[i];
-  document.querySelectorAll('.slot').forEach((el, idx) => el.classList.toggle('selected', idx === i));
-  renderForm();
-}
-
-function renderForm() {
+  document.querySelectorAll('.slot').forEach((s,idx) => s.classList.toggle('selected', idx===i));
+  
   document.getElementById('panel-right').innerHTML = `
-    <div style="background:var(--surface); padding:24px; border-radius:var(--radius); border:1px solid var(--border);">
-      <h2 style="margin-bottom:20px;">Datos del Cliente</h2>
-      <div style="display:grid; gap:16px;">
-        <div class="field"><label>Vendedor</label><select id="f-vendedor">${VENDEDORES.map(v => `<option>${v}</option>`).join('')}</select></div>
-        <div class="field"><label>Nombre del Cliente</label><input type="text" id="f-nombre" placeholder="Nombre completo"></div>
-        <div class="field"><label>Dirección</label><input type="text" id="f-direccion" placeholder="Calle, número, barrio"></div>
-        <div class="field"><label>Teléfono</label><input type="tel" id="f-tel" placeholder="381..."></div>
-        <div class="field"><label>Producto Interés</label><input type="text" id="f-prod" placeholder="Ej: Revestimiento PVC"></div>
-        <button class="btn btn-primary" onclick="confirmarSolicitud()" id="btn-save">Reservar Relevamiento</button>
-      </div>
-    </div>`;
+    <h2 style="margin-bottom:20px">Nueva Solicitud</h2>
+    <div id="msg-form" class="msg"></div>
+    <div class="field"><label>Vendedor</label><select id="f-vendedor">${VENDEDORES.map(v=>`<option>${v}</option>`).join('')}</select></div>
+    <div class="field"><label>Nombre Cliente</label><input type="text" id="f-nombre"></div>
+    <div class="field"><label>Teléfono</label><input type="text" id="f-tel"></div>
+    <div class="field"><label>Dirección</label><input type="text" id="f-dir"></div>
+    <div class="field"><label>Producto</label><input type="text" id="f-prod"></div>
+    <button class="btn" id="btn-save" onclick="guardarSolicitud()">Reservar Turno Relevamiento</button>
+  `;
 }
 
-async function confirmarSolicitud() {
+function guardarSolicitud() {
   const datos = {
     vendedor: document.getElementById('f-vendedor').value,
     clienteNombre: document.getElementById('f-nombre').value,
-    clienteDireccion: document.getElementById('f-direccion').value,
     clienteTelefono: document.getElementById('f-tel').value,
+    clienteDireccion: document.getElementById('f-dir').value,
     producto: document.getElementById('f-prod').value,
     fecha: state.selectedDate,
     horaInicio: state.selectedSlot.inicio
   };
-
-  if(!datos.clienteNombre || !datos.clienteDireccion) return alert("Completá nombre y dirección");
-
+  if(!datos.clienteNombre || !datos.clienteDireccion) return alert('Nombre y Dirección son obligatorios');
+  
   document.getElementById('btn-save').disabled = true;
-  document.getElementById('btn-save').textContent = "Guardando...";
-
-  const res = await apiWrite('registrarProyecto', datos);
-  if(res.ok) {
-    alert("Solicitud guardada con éxito. La página se actualizará.");
-    // CORRECCIÓN: Refresh automático para ver la info actualizada
-    setTimeout(() => window.location.reload(), 1500);
-  }
+  document.getElementById('btn-save').textContent = 'Guardando...';
+  
+  apiWrite('registrarProyecto', datos).then(res => {
+    if(res.ok) {
+      alert('Solicitud creada con éxito. La página se reiniciará.');
+      window.location.reload();
+    }
+  });
 }
 
-// ── Tab Proyectos Activos ─────────────────────────────────────────────────────
+// ── Render Proyectos Activos ──────────────────────────────────────────────────
 function renderTabActivos() {
-  // CORRECCIÓN: Ordenar proyectos por fecha de próxima acción
-  const proyectos = state.proyectos
+  const activos = state.proyectos
     .filter(p => p.estado !== 'Cerrado')
     .sort((a, b) => {
-      const fA = new Date(a.fechaProximaAccion || '2099-12-31');
-      const fB = new Date(b.fechaProximaAccion || '2099-12-31');
-      return fA - fB;
+      // Ordenar por fechaProximaAccion (Ascendente)
+      if (!a.fechaProximaAccion) return 1;
+      if (!b.fechaProximaAccion) return -1;
+      return a.fechaProximaAccion.localeCompare(b.fechaProximaAccion);
     });
 
-  if(!proyectos.length) return '<div class="empty-state"><p>No hay proyectos activos.</p></div>';
-
-  const statusClass = {
-    'Pendiente relevamiento': 's-pendiente',
-    'Presupuesto pendiente': 's-presupuesto',
-    'Instalación confirmada': 's-confirmada',
-    'Instalación programada': 's-programada'
-  };
-
-  return proyectos.map(p => `
+  if(!activos.length) return '<p>No hay proyectos activos.</p>';
+  
+  const statusClass = { 'Pendiente relevamiento':'s-pendiente', 'Presupuesto pendiente':'s-presupuesto', 'Instalación confirmada':'s-confirmada', 'Instalación programada':'s-programada' };
+  
+  return activos.map(p => `
     <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-        <div>
-          <div class="card-name">${p.clienteNombre}</div>
-          <div class="card-info">${p.clienteDireccion} | ${p.producto || 'Sin producto'}</div>
-        </div>
-        <span class="status-chip ${statusClass[p.estado] || 's-pendiente'}">${p.estado}</span>
+      <div style="display:flex; justify-content:space-between">
+        <span class="card-id">${p.id}</span>
+        <span style="font-size:10px; color:var(--accent)">Acción: ${p.fechaProximaAccion || 'Pendiente'}</span>
       </div>
-      <div class="card-next-action">
-        Próxima acción: ${p.fechaProximaAccion ? p.fechaProximaAccion.split('-').reverse().join('/') : 'Por definir'}
-      </div>
+      <div class="card-name">${p.clienteNombre}</div>
+      <div class="card-addr">${p.clienteDireccion}</div>
+      <span class="status-chip ${statusClass[p.estado] || ''}">${p.estado}</span>
     </div>
   `).join('');
 }
 
-// Iniciar aplicación
-window.onload = init;
+// ── Render Confirmar Presupuesto (Venta) ───────────────────────────────────────
+function renderTabPresupuesto() {
+  const pendientes = state.proyectos.filter(p => p.estado === 'Presupuesto pendiente');
+  if(!pendientes.length) return '<div style="text-align:center;padding:40px;color:var(--hint)">No hay presupuestos pendientes de confirmación.</div>';
+  
+  return pendientes.map(p => `
+    <div class="card">
+      <div class="card-id">${p.id}</div>
+      <div class="card-name">${p.clienteNombre}</div>
+      <p style="font-size:12px; margin-bottom:10px">Esperando número de factura para confirmar venta.</p>
+      <div class="field" style="margin-bottom:8px">
+        <input type="text" id="factura-${p.id}" placeholder="Nro de Factura / Remito">
+      </div>
+      <button class="btn" onclick="confirmarVenta('${p.id}')">Confirmar Venta y Cobro</button>
+    </div>
+  `).join('');
+}
+
+function confirmarVenta(idProyecto) {
+  const nroFactura = document.getElementById('factura-' + idProyecto).value;
+  if(!nroFactura) return alert('Debes ingresar el número de factura');
+  
+  document.getElementById('loading-overlay').classList.remove('hidden');
+  apiWrite('confirmarVenta', { idProyecto, nroFactura }).then(res => {
+    if(res.ok) {
+      alert('Venta confirmada. Ahora el instalador podrá programar la instalación.');
+      window.location.reload();
+    } else {
+      alert('Error al confirmar');
+      document.getElementById('loading-overlay').classList.add('hidden');
+    }
+  });
+}
 
 </script>
 </body>
