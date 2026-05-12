@@ -62,8 +62,6 @@ body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text)
 .cal-day.today::after { content:''; position:absolute; bottom:4px; left:50%; transform:translateX(-50%); width:4px; height:4px; background:var(--accent); border-radius:50%; }
 .cal-day.selected { background:var(--accent); color:#fff; font-weight:500; }
 .cal-day.has-events::before { content:''; position:absolute; top:4px; right:4px; width:4px; height:4px; background:#E8A020; border-radius:50%; }
-.cal-day.selected.has-events::before { background:rgba(255,255,255,.6); }
-.cal-day.selected.today::after { background:rgba(255,255,255,.5); }
 
 /* SLOTS */
 .slots-wrap { margin-top:20px; flex:1; overflow-y:auto; }
@@ -73,104 +71,46 @@ body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text)
 .slot:hover { border-color:var(--accent-bd); background:var(--accent-bg); }
 .slot.selected { border-color:var(--accent); background:var(--accent-bg); }
 .slot-time { font-size:12px; font-weight:500; font-family:'DM Mono',monospace; }
-.slot-label { font-size:10px; color:var(--muted); text-transform:uppercase; }
-.slot.selected .slot-time { color:var(--accent); }
-.slots-empty { text-align:center; padding:28px 0; color:var(--hint); font-size:13px; }
 
 /* FORM */
-.form-header { margin-bottom:24px; }
-.form-header h1 { font-size:20px; font-weight:600; letter-spacing:-.02em; margin-bottom:4px; }
-.form-header p { font-size:13px; color:var(--muted); }
-.selection-pill { display:inline-flex; align-items:center; gap:8px; background:var(--accent-bg); border:1px solid var(--accent-bd); border-radius:20px; padding:5px 12px; font-size:13px; font-weight:500; color:var(--accent); margin-bottom:24px; }
-.pill-dot { width:6px; height:6px; background:var(--accent); border-radius:50%; }
-.block-summary { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); padding:12px 14px; display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:24px; }
-.block-item { display:flex; flex-direction:column; gap:2px; }
-.block-item-label { font-size:10px; color:var(--hint); text-transform:uppercase; letter-spacing:.05em; }
-.block-item-val { font-size:13px; font-weight:500; font-family:'DM Mono',monospace; }
-.form-section { margin-bottom:24px; }
-.form-section-label { font-size:11px; font-weight:500; color:var(--hint); text-transform:uppercase; letter-spacing:.08em; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border); }
-.form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
-.form-row.full { grid-template-columns:1fr; }
-.field { display:flex; flex-direction:column; gap:5px; }
-.field label { font-size:12px; font-weight:500; color:var(--muted); }
-.field input, .field select { font-family:'DM Sans',sans-serif; font-size:14px; color:var(--text); background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:10px 12px; outline:none; transition:border-color .15s; width:100%; }
-.field input:focus, .field select:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(26,92,69,.08); }
-.btn { width:100%; padding:13px; border:none; border-radius:var(--radius); font-family:'DM Sans',sans-serif; font-size:14px; font-weight:500; cursor:pointer; transition:all .15s; display:flex; align-items:center; justify-content:center; gap:8px; }
+.field input, .field select { font-family:'DM Sans',sans-serif; font-size:14px; border:1px solid var(--border); border-radius:var(--radius); padding:10px 12px; width:100%; outline:none; }
+.btn { width:100%; padding:13px; border:none; border-radius:var(--radius); font-weight:500; cursor:pointer; transition:all .15s; display:flex; align-items:center; justify-content:center; gap:8px; }
 .btn-primary { background:var(--accent); color:#fff; }
-.btn-primary:hover:not(:disabled) { background:#154f3a; }
-.btn-primary:disabled { background:var(--hint); cursor:not-allowed; }
-.btn-spinner { width:14px; height:14px; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:spin .6s linear infinite; display:none; }
-.btn.loading .btn-spinner { display:block; }
-.msg { border-radius:var(--radius); padding:10px 14px; font-size:13px; margin-bottom:16px; display:none; }
-.msg.error { background:#FEE; border:1px solid #F5C0C0; color:var(--danger); }
-.msg.success { background:var(--accent-bg); border:1px solid var(--accent-bd); color:var(--accent); }
-.msg.visible { display:block; }
-.empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; height:50vh; text-align:center; color:var(--hint); gap:10px; }
-.empty-state .icon { font-size:32px; opacity:.4; }
-.empty-state p { font-size:13px; max-width:220px; line-height:1.6; }
+.btn-primary:hover { background:#154f3a; }
 
 /* CARDS PROYECTOS */
-.main { max-width:800px; margin:0 auto; padding:20px 16px 40px; }
-.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:10px; overflow:hidden; }
-.card-header { padding:14px 16px; display:flex; align-items:flex-start; justify-content:space-between; gap:10px; cursor:pointer; }
-.card-left { flex:1; min-width:0; }
-.card-id { font-size:11px; font-family:'DM Mono',monospace; color:var(--muted); margin-bottom:3px; }
-.card-name { font-size:15px; font-weight:500; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.card-addr { font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.card-right { display:flex; flex-direction:column; align-items:flex-end; gap:5px; flex-shrink:0; }
-.card-chevron { font-size:11px; color:var(--hint); transition:transform .2s; }
-.card.open .card-chevron { transform:rotate(180deg); }
-.card-body { border-top:1px solid var(--border); display:none; padding:16px; }
-.card.open .card-body { display:block; }
-.status-chip { display:inline-block; font-size:11px; font-weight:500; padding:3px 9px; border-radius:20px; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:12px; padding:16px; }
+.card-name { font-size:15px; font-weight:600; margin-bottom:4px; }
+.card-info { font-size:12px; color:var(--muted); margin-bottom:10px; }
+.status-chip { display:inline-block; font-size:10px; font-weight:600; padding:3px 10px; border-radius:20px; text-transform:uppercase; }
 .s-pendiente { background:var(--amber-bg); color:var(--amber); border:1px solid var(--amber-bd); }
 .s-presupuesto { background:#FFF0F5; color:#A0186A; border:1px solid #F0A0C8; }
 .s-confirmada { background:var(--blue-bg); color:var(--blue); border:1px solid var(--blue-bd); }
 .s-programada { background:var(--accent-bg); color:var(--accent); border:1px solid var(--accent-bd); }
-
-/* INFO RELEVAMIENTO */
-.relev-info { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); padding:14px; margin-bottom:16px; }
-.relev-info-title { font-size:11px; font-weight:500; color:var(--hint); text-transform:uppercase; letter-spacing:.07em; margin-bottom:10px; }
-.relev-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-.relev-item { display:flex; flex-direction:column; gap:2px; }
-.relev-label { font-size:10px; color:var(--hint); text-transform:uppercase; letter-spacing:.05em; }
-.relev-val { font-size:14px; font-weight:500; font-family:'DM Mono',monospace; }
-.relev-obs { margin-top:10px; font-size:13px; color:var(--muted); line-height:1.5; }
+.card-next-action { font-size:11px; color:var(--accent); font-weight:600; margin-top:8px; }
 </style>
 </head>
 <body>
 
 <div class="loading-overlay" id="loading-overlay">
   <div class="spinner-lg"></div>
-  <p>Cargando...</p>
+  <p>Sincronizando datos...</p>
 </div>
 
 <div class="topbar">
-  <div class="brand"><div class="brand-dot"></div>Revestimientos — Panel Vendedor</div>
+  <div class="brand"><div class="brand-dot"></div>Revestimientos — Vendedor</div>
   <div class="topbar-right" id="clock"></div>
 </div>
 
 <div class="tabs">
   <div class="tab active" data-tab="nueva" onclick="switchTab('nueva')">Nueva solicitud</div>
-  <div class="tab" data-tab="presupuesto" onclick="switchTab('presupuesto')">Confirmar presupuesto <span class="tab-badge badge-amber" id="badge-presupuesto">0</span></div>
   <div class="tab" data-tab="activos" onclick="switchTab('activos')">Proyectos activos <span class="tab-badge badge-blue" id="badge-activos">0</span></div>
 </div>
 
 <div id="tab-content"></div>
 
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbyJ-bVABnLM2GWhXyVzVmI8TaOWnUNrsMdQlflWoA7J2Dbi8aFJvV2WLx8wJCiACESi/exec';
-
-async function apiGet(params) {
-  const url = API_URL + '?' + new URLSearchParams(params);
-  const res = await fetch(url, {redirect:'follow'});
-  return res.json();
-}
-async function apiWrite(accion, datos) {
-  const params = new URLSearchParams({ accion, datos: encodeURIComponent(JSON.stringify(datos)) });
-  const res = await fetch(API_URL + '?' + params, {redirect:'follow'});
-  return res.json();
-}
+const API_URL = 'https://script.google.com/macros/s/AKfycbwV575o3ZEghQyYhpU12MnAfUxk7fPjcCBnNc2rPoBvy7WaUQO2yhs_y4rsnldqOgCV/exec';
 
 const state = {
   tab: 'nueva',
@@ -187,389 +127,256 @@ const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto'
 const DIAS_CORTO = ['Do','Lu','Ma','Mi','Ju','Vi','Sa'];
 const VENDEDORES = ['Claudia Rodriguez','Alejandro Gurrea','Paola Alvarez','Daniel Dulor','Nestor Lombardini','Manuel Sosa'];
 
-function updateClock() {
-  const now = new Date();
-  document.getElementById('clock').textContent =
-    now.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'}) + '  ' +
-    now.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
-}
-updateClock(); setInterval(updateClock, 10000);
-
-function timeToMin(t) { const p=String(t).split(':'); return parseInt(p[0])*60+parseInt(p[1]||0); }
-function minToTime(m) { return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'); }
-function formatDate(d) { return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function formatDateHuman(str) {
-  if (!str) return '—';
-  const [y,m,d] = str.split('-');
-  const dias = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
-  const dt = new Date(+y,+m-1,+d);
-  return dias[dt.getDay()]+' '+parseInt(d)+' de '+MESES[+m-1];
+async function apiGet(params) {
+  const url = API_URL + '?' + new URLSearchParams(params);
+  const res = await fetch(url, {redirect:'follow'});
+  return res.json();
 }
 
-// ── Init ──────────────────────────────────────────────────────────────────────
+async function apiWrite(accion, datos) {
+  const params = new URLSearchParams({ accion, datos: encodeURIComponent(JSON.stringify(datos)) });
+  const res = await fetch(API_URL + '?' + params, {redirect:'follow'});
+  return res.json();
+}
+
+// ── Inicialización ───────────────────────────────────────────────────────────
 function init() {
-  cargarProyectos(() => {
-    cargarMes(state.viewYear, state.viewMonth, () => {
-      document.getElementById('loading-overlay').classList.add('hidden');
-      switchTab('nueva');
-    });
+  document.getElementById('loading-overlay').classList.remove('hidden');
+  
+  // Cargar proyectos y calendario en paralelo para velocidad inicial
+  Promise.all([
+    cargarProyectos(),
+    cargarMes(state.viewYear, state.viewMonth)
+  ]).then(() => {
+    document.getElementById('loading-overlay').classList.add('hidden');
+    switchTab('nueva'); // Esto gatilla renderTabNuevaVenta y renderCalendar
   });
 }
 
-function cargarProyectos(cb) {
-  apiGet({accion:'getProyectosVendedor'})
-    .then(data => { state.proyectos = data || []; actualizarBadges(); if(cb) cb(); })
-    .catch(() => { if(cb) cb(); });
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'short'}) + ' ' + now.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+}
+setInterval(updateClock, 10000); updateClock();
+
+// ── Datos ────────────────────────────────────────────────────────────────────
+async function cargarProyectos() {
+  try {
+    const data = await apiGet({accion:'getProyectosVendedor'});
+    state.proyectos = data || [];
+    actualizarBadges();
+  } catch (e) { console.error("Error al cargar proyectos"); }
+}
+
+async function cargarMes(anio, mes) {
+  const key = `${anio}-${mes}`;
+  if(state.cache[key]) return;
+  try {
+    const data = await apiGet({accion:'bloques', anio, mes});
+    state.cache[key] = data;
+  } catch (e) { console.error("Error al cargar mes"); }
 }
 
 function actualizarBadges() {
-  const presup = state.proyectos.filter(p => p.estado === 'Presupuesto pendiente').length;
-  const activos = state.proyectos.filter(p => !['Cerrado'].includes(p.estado)).length;
-  document.getElementById('badge-presupuesto').textContent = presup;
+  const activos = state.proyectos.filter(p => p.estado !== 'Cerrado').length;
   document.getElementById('badge-activos').textContent = activos;
 }
 
-// ── Tabs ──────────────────────────────────────────────────────────────────────
+// ── Navegación de Tabs ───────────────────────────────────────────────────────
 function switchTab(tab) {
   state.tab = tab;
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab===tab));
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
   const content = document.getElementById('tab-content');
+  
   if (tab === 'nueva') {
     content.innerHTML = renderTabNuevaVenta();
-  } else if (tab === 'presupuesto') {
-    content.innerHTML = '<div class="main">' + renderTabPresupuesto() + '</div>';
+    renderCalendar(); // CORRECCIÓN: Renderiza el calendario ni bien se abre la pestaña
   } else {
-    content.innerHTML = '<div class="main">' + renderTabActivos() + '</div>';
+    content.innerHTML = '<div style="max-width:800px; margin:20px auto; padding:0 16px;">' + renderTabActivos() + '</div>';
   }
 }
 
-// ── Tab Nueva Venta ───────────────────────────────────────────────────────────
+// ── Render Nueva Venta ────────────────────────────────────────────────────────
 function renderTabNuevaVenta() {
   return `<div class="layout">
     <div class="panel-left">
-      <div class="section-title">Seleccioná un día</div>
+      <div class="section-title">Calendario de Relevamientos</div>
       <div class="cal-nav">
         <button class="cal-nav-btn" onclick="changeMonth(-1)">←</button>
-        <span class="cal-month" id="cal-month-label"></span>
+        <span class="cal-month" id="cal-month-label">${MESES[state.viewMonth]} ${state.viewYear}</span>
         <button class="cal-nav-btn" onclick="changeMonth(1)">→</button>
       </div>
       <div class="cal-grid" id="cal-grid"></div>
       <div class="slots-wrap" id="slots-wrap">
-        <div class="slots-empty">Elegí un día para ver horarios</div>
+        <div style="text-align:center; padding:40px; color:var(--hint); font-size:13px;">Elegí un día para ver disponibilidad</div>
       </div>
     </div>
     <div class="panel-right" id="panel-right">
-      <div class="empty-state">
-        <div class="icon">📅</div>
-        <p>Elegí un día y horario para continuar</p>
+      <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:var(--hint);">
+        <p>Seleccioná un turno para cargar los datos del cliente</p>
       </div>
     </div>
   </div>`;
 }
 
-// ── Calendario ────────────────────────────────────────────────────────────────
+// ── Lógica de Calendario ──────────────────────────────────────────────────────
 function renderCalendar() {
-  const {viewYear,viewMonth} = state;
-  const label = document.getElementById('cal-month-label');
-  if (label) label.textContent = MESES[viewMonth]+' '+viewYear;
   const grid = document.getElementById('cal-grid');
-  if (!grid) return;
+  if(!grid) return;
   grid.innerHTML = '';
-  DIAS_CORTO.forEach(d => { const el=document.createElement('div'); el.className='cal-dow'; el.textContent=d; grid.appendChild(el); });
-  const firstDay = new Date(viewYear,viewMonth,1).getDay();
-  const days = new Date(viewYear,viewMonth+1,0).getDate();
+  
+  DIAS_CORTO.forEach(d => {
+    const el = document.createElement('div'); el.className = 'cal-dow'; el.textContent = d; grid.appendChild(el);
+  });
+
+  const firstDay = new Date(state.viewYear, state.viewMonth, 1).getDay();
+  const daysInMonth = new Date(state.viewYear, state.viewMonth + 1, 0).getDate();
   const today = new Date();
-  const key = viewYear+'-'+viewMonth;
-  const bloques = state.cache[key] ? state.cache[key].bloques : {};
-  for(let i=0;i<firstDay;i++){const el=document.createElement('div');el.className='cal-day empty';grid.appendChild(el);}
-  for(let d=1;d<=days;d++){
-    const el=document.createElement('div');el.className='cal-day';el.textContent=d;
-    const dt=new Date(viewYear,viewMonth,d);
-    const isPast=dt<new Date(today.getFullYear(),today.getMonth(),today.getDate());
-    const isToday=d===today.getDate()&&viewMonth===today.getMonth()&&viewYear===today.getFullYear();
-    const isSun=dt.getDay()===0;
-    const dateStr=formatDate(dt);
-    if(isPast||isSun)el.classList.add('past');
-    if(isToday)el.classList.add('today');
-    if(bloques[dateStr])el.classList.add('has-events');
-    if(state.selectedDate===dateStr)el.classList.add('selected');
-    if(!isPast&&!isSun)el.onclick=()=>selectDate(dateStr);
+  const cacheKey = `${state.viewYear}-${state.viewMonth}`;
+  const bloques = state.cache[cacheKey]?.bloques || {};
+
+  for(let i=0; i<firstDay; i++) {
+    const el = document.createElement('div'); el.className = 'cal-day empty'; grid.appendChild(el);
+  }
+
+  for(let d=1; d<=daysInMonth; d++) {
+    const dateStr = `${state.viewYear}-${String(state.viewMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const el = document.createElement('div');
+    el.className = 'cal-day';
+    el.textContent = d;
+
+    const dt = new Date(state.viewYear, state.viewMonth, d);
+    if(dt < new Date(today.getFullYear(), today.getMonth(), today.getDate())) el.classList.add('past');
+    if(dt.getDay() === 0) el.classList.add('past'); // Domingos no disponibles
+    
+    if(d === today.getDate() && state.viewMonth === today.getMonth()) el.classList.add('today');
+    if(bloques[dateStr]) el.classList.add('has-events');
+    if(state.selectedDate === dateStr) el.classList.add('selected');
+
+    if(!el.classList.contains('past')) {
+      el.onclick = () => selectDate(dateStr);
+    }
     grid.appendChild(el);
   }
 }
 
-function changeMonth(dir) {
+async function changeMonth(dir) {
   state.viewMonth += dir;
-  if(state.viewMonth>11){state.viewMonth=0;state.viewYear++;}
-  if(state.viewMonth<0){state.viewMonth=11;state.viewYear--;}
-  const key=state.viewYear+'-'+state.viewMonth;
-  if(!state.cache[key]) document.getElementById('loading-overlay').classList.remove('hidden');
-  cargarMes(state.viewYear,state.viewMonth,()=>{
-    document.getElementById('loading-overlay').classList.add('hidden');
-    renderCalendar();
-  });
-}
-
-function cargarMes(anio,mes,cb) {
-  const key=anio+'-'+mes;
-  if(state.cache[key]){if(cb)cb();return;}
-  apiGet({accion:'bloques',anio,mes})
-    .then(data=>{state.cache[key]=data;if(cb)cb();})
-    .catch(()=>{if(cb)cb();});
-}
-
-function calcularSlotsLocales(dateStr) {
-  const key=state.viewYear+'-'+state.viewMonth;
-  const cached=state.cache[key];
-  if(!cached||!cached.bloques||!cached.config)return[];
-  const bloquesDelDia=cached.bloques[dateStr]||[];
-  const cfg=cached.config;
-  const todayStr=formatDate(new Date());
-  let ini=cfg.jornadaIni;
-  if(dateStr===todayStr){const now=new Date();ini=Math.ceil((now.getHours()*60+now.getMinutes())/30)*30;}
-  const slots=[];
-  for(let t=ini;t+cfg.durRelev<=cfg.jornadaFin;t+=30){
-    const fin=t+cfg.durRelev;
-    if(bloquesDelDia.every(b=>fin<=b.ini||t>=b.fin))slots.push({inicio:minToTime(t),fin:minToTime(fin)});
-  }
-  return slots;
+  if(state.viewMonth > 11) { state.viewMonth = 0; state.viewYear++; }
+  else if(state.viewMonth < 0) { state.viewMonth = 11; state.viewYear--; }
+  
+  document.getElementById('cal-month-label').textContent = `${MESES[state.viewMonth]} ${state.viewYear}`;
+  await cargarMes(state.viewYear, state.viewMonth);
+  renderCalendar();
 }
 
 function selectDate(dateStr) {
-  state.selectedDate=dateStr;
-  state.selectedSlot=null;
+  state.selectedDate = dateStr;
   renderCalendar();
-  const slots=calcularSlotsLocales(dateStr);
-  state.slots=slots;
-  const wrap=document.getElementById('slots-wrap');
-  if(!wrap)return;
-  if(!slots.length){wrap.innerHTML='<div class="slots-empty">No hay horarios disponibles.</div>';renderPanelVacio();return;}
-  let html='<div class="slots-date-label">'+formatDateHuman(dateStr)+'</div>';
-  html+='<div class="section-title">Relevamiento (1 hora)</div><div class="slots-grid">';
-  slots.forEach((s,i)=>{
-    html+=`<div class="slot" onclick="selectSlot(${i})" id="slot-${i}">
-      <div class="slot-time">${s.inicio} – ${s.fin}</div>
-      <div class="slot-label">Libre</div>
-    </div>`;
-  });
-  html+='</div>';
-  wrap.innerHTML=html;
-  renderPanelVacio();
+  
+  const cacheKey = `${state.viewYear}-${state.viewMonth}`;
+  const cfg = state.cache[cacheKey]?.config || { jornadaIni: 480, jornadaFin: 1080, durRelev: 60 };
+  const bloquesDia = state.cache[cacheKey]?.bloques?.[dateStr] || [];
+  
+  const slots = [];
+  for(let t = cfg.jornadaIni; t + cfg.durRelev <= cfg.jornadaFin; t += 30) {
+    if(bloquesDia.every(b => (t + cfg.durRelev) <= b.ini || t >= b.fin)) {
+      slots.push({ inicio: formatMin(t), fin: formatMin(t + cfg.durRelev) });
+    }
+  }
+
+  state.slots = slots;
+  const wrap = document.getElementById('slots-wrap');
+  wrap.innerHTML = `<div class="slots-date-label">Turnos para el ${dateStr.split('-').reverse().join('/')}</div><div class="slots-grid">` +
+    slots.map((s, i) => `<div class="slot" onclick="selectSlot(${i})"><div class="slot-time">${s.inicio} - ${s.fin}</div></div>`).join('') + `</div>`;
 }
 
+function formatMin(m) { return `${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`; }
+
 function selectSlot(i) {
-  document.querySelectorAll('.slot').forEach(el=>el.classList.remove('selected'));
-  document.getElementById('slot-'+i).classList.add('selected');
-  state.selectedSlot=state.slots[i];
+  state.selectedSlot = state.slots[i];
+  document.querySelectorAll('.slot').forEach((el, idx) => el.classList.toggle('selected', idx === i));
   renderForm();
 }
 
-function renderPanelVacio() {
-  const pr=document.getElementById('panel-right');
-  if(pr)pr.innerHTML='<div class="empty-state"><div class="icon">🕐</div><p>Ahora elegí un horario disponible</p></div>';
-}
-
 function renderForm() {
-  const {selectedDate,selectedSlot}=state;
-  const opts=VENDEDORES.map(v=>'<option value="'+v+'">'+v+'</option>').join('');
-  const pr=document.getElementById('panel-right');
-  if(!pr)return;
-  pr.innerHTML=`
-    <div class="form-header">
-      <h1>Nueva solicitud de relevamiento</h1>
-      <p>Completá los datos del cliente para reservar el turno</p>
-    </div>
-    <div class="selection-pill"><div class="pill-dot"></div>
-      <span>Relevamiento: ${formatDateHuman(selectedDate)} — ${selectedSlot.inicio} a ${selectedSlot.fin}</span>
-    </div>
-    <div class="block-summary">
-      <div class="block-item"><span class="block-item-label">Fecha</span><span class="block-item-val">${selectedDate}</span></div>
-      <div class="block-item"><span class="block-item-label">Inicio</span><span class="block-item-val">${selectedSlot.inicio}</span></div>
-      <div class="block-item"><span class="block-item-label">Fin</span><span class="block-item-val">${selectedSlot.fin}</span></div>
-    </div>
-    <div id="msg-error" class="msg error"></div>
-    <div id="msg-success" class="msg success"></div>
-    <div class="form-section">
-      <div class="form-section-label">Vendedor</div>
-      <div class="form-row full"><div class="field"><label>Vendedor</label><select id="f-vendedor">${opts}</select></div></div>
-    </div>
-    <div class="form-section">
-      <div class="form-section-label">Datos del cliente</div>
-      <div class="form-row">
-        <div class="field"><label>Nombre completo *</label><input type="text" id="f-nombre" placeholder="Ej: Juan García"/></div>
-        <div class="field"><label>Teléfono *</label><input type="tel" id="f-telefono" placeholder="Ej: 381-555-1234"/></div>
-      </div>
-      <div class="form-row full">
-        <div class="field"><label>Dirección de obra *</label><input type="text" id="f-direccion" placeholder="Ej: Av. San Martín 1245"/></div>
-      </div>
-      <div class="form-row full">
-        <div class="field"><label>Producto / descripción</label><input type="text" id="f-producto" placeholder="Ej: Porcelanato 60x60 Gris (aproximado)"/></div>
-      </div>
-    </div>
-    <button class="btn btn-primary" id="btn-confirmar" onclick="confirmarSolicitud()">
-      <div class="btn-spinner"></div>
-      <span id="btn-text">Reservar turno de relevamiento</span>
-    </button>`;
-}
-
-function confirmarSolicitud() {
-  const nombre   =document.getElementById('f-nombre').value.trim();
-  const telefono =document.getElementById('f-telefono').value.trim();
-  const direccion=document.getElementById('f-direccion').value.trim();
-  const producto =document.getElementById('f-producto').value.trim();
-  const vendedor =document.getElementById('f-vendedor').value;
-  const errEl=document.getElementById('msg-error');
-  errEl.className='msg error';
-  if(!nombre||!telefono||!direccion){errEl.textContent='Completá nombre, teléfono y dirección.';errEl.className='msg error visible';return;}
-  const btn=document.getElementById('btn-confirmar');
-  btn.classList.add('loading');btn.disabled=true;
-  document.getElementById('btn-text').textContent='Guardando...';
-  apiWrite('registrarProyecto',{vendedor,clienteNombre:nombre,clienteTelefono:telefono,clienteDireccion:direccion,producto,fecha:state.selectedDate,horaInicio:state.selectedSlot.inicio})
-    .then(res=>{
-      btn.classList.remove('loading');
-      if(res.ok){
-        document.getElementById('msg-success').textContent='Turno reservado. ID: '+res.idProyecto+' — Relevamiento de '+state.selectedSlot.inicio+' a '+res.horaFin;
-        document.getElementById('msg-success').className='msg success visible';
-        document.getElementById('btn-text').textContent='Turno confirmado ✓';
-        const key=state.viewYear+'-'+state.viewMonth;
-        if(state.cache[key]&&state.cache[key].bloques){
-          if(!state.cache[key].bloques[state.selectedDate])state.cache[key].bloques[state.selectedDate]=[];
-          state.cache[key].bloques[state.selectedDate].push({ini:timeToMin(state.selectedSlot.inicio),fin:timeToMin(state.selectedSlot.fin)});
-        }
-        state.selectedSlot=null;renderCalendar();
-        document.querySelectorAll('.field input,.field select').forEach(el=>el.disabled=true);
-        cargarProyectos(null);
-      } else {
-        errEl.textContent='Error: '+res.error;errEl.className='msg error visible';
-        btn.disabled=false;document.getElementById('btn-text').textContent='Reservar turno de relevamiento';
-      }
-    })
-    .catch(()=>{
-      btn.classList.remove('loading');btn.disabled=false;
-      document.getElementById('btn-text').textContent='Reservar turno de relevamiento';
-      errEl.textContent='Error de conexión. Intentá de nuevo.';errEl.className='msg error visible';
-    });
-}
-
-// ── Tab Confirmar Presupuesto ─────────────────────────────────────────────────
-function renderTabPresupuesto() {
-  const proyectos = state.proyectos.filter(p=>p.estado==='Presupuesto pendiente');
-  if(!proyectos.length) return '<div class="empty-state" style="height:50vh"><div class="icon">✓</div><p>No hay presupuestos pendientes de confirmar.</p></div>';
-  return proyectos.map(p => {
-    const hasRelev = p.m2 || p.hsEst || p.observaciones;
-    return `<div class="card" id="card-${p.id}">
-      <div class="card-header" onclick="toggleCard('${p.id}')">
-        <div class="card-left">
-          <div class="card-id">${p.id}</div>
-          <div class="card-name">${p.clienteNombre}</div>
-          <div class="card-addr">${p.clienteDireccion}</div>
-        </div>
-        <div class="card-right">
-          <span class="status-chip s-presupuesto">Presupuesto pendiente</span>
-          ${p.fechaRelevamiento?'<span style="font-size:11px;color:var(--hint)">Relev: '+formatDateHuman(p.fechaRelevamiento)+'</span>':''}
-          <span class="card-chevron">▼</span>
-        </div>
-      </div>
-      <div class="card-body">
-        ${hasRelev ? `<div class="relev-info">
-          <div class="relev-info-title">Info del relevamiento</div>
-          <div class="relev-grid">
-            <div class="relev-item"><span class="relev-label">M² relevados</span><span class="relev-val">${p.m2||'—'}</span></div>
-            <div class="relev-item"><span class="relev-label">Hs estimadas</span><span class="relev-val">${p.hsEst||'—'} hs</span></div>
-            <div class="relev-item"><span class="relev-label">Vendedor</span><span class="relev-val" style="font-size:11px">${p.vendedor}</span></div>
-          </div>
-          ${p.observaciones?'<div class="relev-obs">📋 '+p.observaciones+'</div>':''}
-        </div>` : '<div style="font-size:13px;color:var(--hint);margin-bottom:16px;">El instalador aún no cargó el relevamiento.</div>'}
-        <div id="msg-presup-${p.id}" class="msg"></div>
-        <div class="form-section" style="margin-bottom:16px">
-          <div class="form-section-label">Confirmar venta</div>
-          <div class="field">
-            <label>Número de factura *</label>
-            <input type="text" id="factura-${p.id}" placeholder="Ej: FC-00125"/>
-          </div>
-        </div>
-        <button class="btn btn-primary" id="btn-presup-${p.id}" onclick="confirmarPresupuesto('${p.id}')">
-          <div class="btn-spinner"></div>
-          <span id="btn-presup-text-${p.id}">Confirmar venta y habilitar instalación</span>
-        </button>
+  document.getElementById('panel-right').innerHTML = `
+    <div style="background:var(--surface); padding:24px; border-radius:var(--radius); border:1px solid var(--border);">
+      <h2 style="margin-bottom:20px;">Datos del Cliente</h2>
+      <div style="display:grid; gap:16px;">
+        <div class="field"><label>Vendedor</label><select id="f-vendedor">${VENDEDORES.map(v => `<option>${v}</option>`).join('')}</select></div>
+        <div class="field"><label>Nombre del Cliente</label><input type="text" id="f-nombre" placeholder="Nombre completo"></div>
+        <div class="field"><label>Dirección</label><input type="text" id="f-direccion" placeholder="Calle, número, barrio"></div>
+        <div class="field"><label>Teléfono</label><input type="tel" id="f-tel" placeholder="381..."></div>
+        <div class="field"><label>Producto Interés</label><input type="text" id="f-prod" placeholder="Ej: Revestimiento PVC"></div>
+        <button class="btn btn-primary" onclick="confirmarSolicitud()" id="btn-save">Reservar Relevamiento</button>
       </div>
     </div>`;
-  }).join('');
 }
 
-function toggleCard(id) {
-  const card=document.getElementById('card-'+id);
-  if(!card)return;
-  const isOpen=card.classList.contains('open');
-  document.querySelectorAll('.card.open').forEach(c=>c.classList.remove('open'));
-  if(!isOpen)card.classList.add('open');
-}
+async function confirmarSolicitud() {
+  const datos = {
+    vendedor: document.getElementById('f-vendedor').value,
+    clienteNombre: document.getElementById('f-nombre').value,
+    clienteDireccion: document.getElementById('f-direccion').value,
+    clienteTelefono: document.getElementById('f-tel').value,
+    producto: document.getElementById('f-prod').value,
+    fecha: state.selectedDate,
+    horaInicio: state.selectedSlot.inicio
+  };
 
-function confirmarPresupuesto(id) {
-  const factura=document.getElementById('factura-'+id).value.trim();
-  const errEl=document.getElementById('msg-presup-'+id);
-  errEl.className='msg error';
-  if(!factura){errEl.textContent='Ingresá el número de factura.';errEl.className='msg error visible';return;}
-  const btn=document.getElementById('btn-presup-'+id);
-  btn.classList.add('loading');btn.disabled=true;
-  document.getElementById('btn-presup-text-'+id).textContent='Guardando...';
-  apiWrite('confirmarPresupuesto',{idProyecto:id,nroFactura:factura})
-    .then(res=>{
-      btn.classList.remove('loading');
-      if(res.ok){
-        errEl.textContent='';
-        const ok=document.getElementById('msg-presup-'+id);
-        ok.textContent='Venta confirmada. El instalador ya puede coordinar la instalación.';
-        ok.className='msg success visible';
-        document.getElementById('btn-presup-text-'+id).textContent='Confirmado ✓';
-        btn.disabled=true;
-        document.getElementById('factura-'+id).disabled=true;
-        const p=state.proyectos.find(x=>x.id===id);
-        if(p)p.estado='Instalación confirmada';
-        actualizarBadges();
-      } else {
-        errEl.textContent='Error: '+res.error;errEl.className='msg error visible';
-        btn.disabled=false;document.getElementById('btn-presup-text-'+id).textContent='Confirmar venta y habilitar instalación';
-      }
-    })
-    .catch(()=>{
-      btn.classList.remove('loading');btn.disabled=false;
-      document.getElementById('btn-presup-text-'+id).textContent='Confirmar venta y habilitar instalación';
-      errEl.textContent='Error de conexión.';errEl.className='msg error visible';
-    });
+  if(!datos.clienteNombre || !datos.clienteDireccion) return alert("Completá nombre y dirección");
+
+  document.getElementById('btn-save').disabled = true;
+  document.getElementById('btn-save').textContent = "Guardando...";
+
+  const res = await apiWrite('registrarProyecto', datos);
+  if(res.ok) {
+    alert("Solicitud guardada con éxito. La página se actualizará.");
+    // CORRECCIÓN: Refresh automático para ver la info actualizada
+    setTimeout(() => window.location.reload(), 1500);
+  }
 }
 
 // ── Tab Proyectos Activos ─────────────────────────────────────────────────────
 function renderTabActivos() {
-  const proyectos = state.proyectos.filter(p=>p.estado!=='Cerrado');
-  if(!proyectos.length) return '<div class="empty-state" style="height:50vh"><div class="icon">✓</div><p>No hay proyectos activos.</p></div>';
+  // CORRECCIÓN: Ordenar proyectos por fecha de próxima acción
+  const proyectos = state.proyectos
+    .filter(p => p.estado !== 'Cerrado')
+    .sort((a, b) => {
+      const fA = new Date(a.fechaProximaAccion || '2099-12-31');
+      const fB = new Date(b.fechaProximaAccion || '2099-12-31');
+      return fA - fB;
+    });
+
+  if(!proyectos.length) return '<div class="empty-state"><p>No hay proyectos activos.</p></div>';
+
   const statusClass = {
-    'Pendiente relevamiento':'s-pendiente',
-    'Presupuesto pendiente':'s-presupuesto',
-    'Instalación confirmada':'s-confirmada',
-    'Instalación programada':'s-programada',
-    'Instalado':'s-programada',
+    'Pendiente relevamiento': 's-pendiente',
+    'Presupuesto pendiente': 's-presupuesto',
+    'Instalación confirmada': 's-confirmada',
+    'Instalación programada': 's-programada'
   };
-  return proyectos.map(p=>`
+
+  return proyectos.map(p => `
     <div class="card">
-      <div class="card-header" style="cursor:default">
-        <div class="card-left">
-          <div class="card-id">${p.id}</div>
+      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div>
           <div class="card-name">${p.clienteNombre}</div>
-          <div class="card-addr">${p.clienteDireccion}</div>
+          <div class="card-info">${p.clienteDireccion} | ${p.producto || 'Sin producto'}</div>
         </div>
-        <div class="card-right">
-          <span class="status-chip ${statusClass[p.estado]||'s-pendiente'}">${p.estado}</span>
-          <span style="font-size:11px;color:var(--hint)">${p.vendedor}</span>
-          ${p.nroFactura?'<span style="font-size:11px;font-family:DM Mono,monospace;color:var(--muted)">'+p.nroFactura+'</span>':''}
-        </div>
+        <span class="status-chip ${statusClass[p.estado] || 's-pendiente'}">${p.estado}</span>
       </div>
-    </div>`).join('');
+      <div class="card-next-action">
+        Próxima acción: ${p.fechaProximaAccion ? p.fechaProximaAccion.split('-').reverse().join('/') : 'Por definir'}
+      </div>
+    </div>
+  `).join('');
 }
 
-// ── Init ──────────────────────────────────────────────────────────────────────
-init();
-setTimeout(renderCalendar, 100);
+// Iniciar aplicación
+window.onload = init;
+
 </script>
 </body>
 </html>
