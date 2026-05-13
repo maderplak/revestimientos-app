@@ -26,24 +26,66 @@ const meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','
 const dows=['Do','Lu','Ma','Mi','Ju','Vi','Sa'];
 function tick(){document.getElementById('clock').textContent=new Date().toLocaleString('es-AR',{dateStyle:'medium',timeStyle:'short'});}tick();setInterval(tick,30000);
 function enc(d){return encodeURIComponent(JSON.stringify(d||{}));}
-async function api(accion,datos){const res=await fetch(API_URL+'?accion='+encodeURIComponent(accion)+'&datos='+enc(datos),{redirect:'follow'});return res.json();}
-async function apiPlain(params){const res=await fetch(API_URL+'?'+new URLSearchParams(params),{redirect:'follow'});return res.json();}
+async function leerJsonSeguro(res){
+  const txt=await res.text();
+  try{return JSON.parse(txt);}catch(e){throw new Error('Respuesta no JSON del servidor: '+txt.slice(0,180));}
+}
+async function api(accion,datos){const res=await fetch(API_URL+'?accion='+encodeURIComponent(accion)+'&datos='+enc(datos),{redirect:'follow'});return leerJsonSeguro(res);}
+async function apiPlain(params){const res=await fetch(API_URL+'?'+new URLSearchParams(params),{redirect:'follow'});return leerJsonSeguro(res);}
 function fmtDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function human(s){if(!s)return '—';const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'});}
 function msg(id,type,text){const el=document.getElementById(id); if(!el)return; el.className='msg show '+(type==='ok'?'ok':'err'); el.textContent=text;}
 function setLoading(btn,loading,text){btn.disabled=loading; if(text)btn.textContent=text;}
-async function cargarProyectos(){const data=await apiPlain({accion:'getProyectosVendedor'});state.proyectos=Array.isArray(data)?data:[];document.getElementById('badgePresupuesto').textContent='('+state.proyectos.filter(p=>p.estado==='Presupuesto pendiente').length+')';}
+function obtenerArrayRespuesta(res, claves){
+  if (Array.isArray(res)) return res;
+  for (const k of claves) {
+    if (res && Array.isArray(res[k])) return res[k];
+  }
+  return [];
+}
+function normalizarProyecto(p){
+  return {
+    ...p,
+    id: p.id || p.idProyecto || '',
+    estado: p.estado || p.estadoProyecto || '',
+    clienteNombre: p.clienteNombre || p.cliente || '',
+    clienteDireccion: p.clienteDireccion || p.direccion || '',
+    clienteTelefono: p.clienteTelefono || p.telefono || '',
+    descripcionRelevamiento: p.descripcionRelevamiento || p.producto || '',
+    nroFactura: p.nroFactura || '',
+    fechaRelevamiento: p.fechaRelevamiento || '',
+    fechaInstalacion: p.fechaInstalacion || '',
+    m2: p.m2 || p.m2Relevados || '',
+    hsEst: p.hsEst || p.horasEstimadasInstalacion || p.horasEstimadas || '',
+    observaciones: p.observaciones || p.observacionesRelevamiento || ''
+  };
+}
+function normalizarProyectos(res){
+  return obtenerArrayRespuesta(res, ['proyectos','data','resultado','items']).map(normalizarProyecto);
+}
+async function cargarProyectos(){
+  try{
+    const res=await apiPlain({accion:'getProyectosVendedor'});
+    state.proyectos=normalizarProyectos(res);
+  }catch(e){
+    console.error('Error cargando proyectos:',e);
+    state.proyectos=[];
+  }
+  if(!Array.isArray(state.proyectos)) state.proyectos=[];
+  const badge=document.getElementById('badgePresupuesto');
+  if(badge) badge.textContent='('+state.proyectos.filter(p=>p.estado==='Presupuesto pendiente').length+')';
+}
 function showTab(tab){state.tab=tab;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));render();}
 async function init(){await cargarProyectos();render();}init().catch(e=>{document.getElementById('app').innerHTML='<div class="msg show err">Error cargando datos: '+e.message+'</div>';});
 function render(){if(state.tab==='nueva')renderNueva(); else if(state.tab==='presupuesto')renderPresupuesto(); else renderActivos();}
 function renderNueva(){document.getElementById('app').innerHTML=`<div class="grid"><div class="card"><div class="calendar-head"><button class="btn secondary" onclick="moveMonth(-1)">←</button><b>${meses[state.month]} ${state.year}</b><button class="btn secondary" onclick="moveMonth(1)">→</button></div><div class="cal" id="cal"></div></div><div><div class="card"><h2 class="title">Nueva solicitud de relevamiento</h2><p class="sub">Elegí fecha y hora pactada con el cliente. El sistema bloquea traslado previo, relevamiento y salida operativa.</p><div id="slotsArea">Seleccioná un día.</div></div><div id="formArea"></div></div></div>`;drawCalendar();}
 function drawCalendar(){const cal=document.getElementById('cal');cal.innerHTML='';dows.forEach(d=>cal.innerHTML+=`<div class="dow">${d}</div>`);const first=new Date(state.year,state.month,1).getDay();const days=new Date(state.year,state.month+1,0).getDate();for(let i=0;i<first;i++)cal.innerHTML+='<div class="day empty"></div>';const today=new Date();const today0=new Date(today.getFullYear(),today.getMonth(),today.getDate());for(let d=1;d<=days;d++){const dt=new Date(state.year,state.month,d);const date=fmtDate(dt);const past=dt<today0||dt.getDay()===0;cal.innerHTML+=`<div class="day ${past?'past':''} ${state.date===date?'selected':''}" ${past?'':'onclick="selectDate(\''+date+'\')"'}>${d}</div>`;}}
 function moveMonth(n){state.month+=n;if(state.month<0){state.month=11;state.year--}if(state.month>11){state.month=0;state.year++}state.date=null;state.slot=null;renderNueva();}
-async function selectDate(date){state.date=date;state.slot=null;drawCalendar();document.getElementById('slotsArea').textContent='Cargando horarios...';const r=await api('slots',{fecha:date,tipoBloque:'Relevamiento'});state.slots=(r&&r.ok&&r.slots)||[];document.getElementById('slotsArea').innerHTML=state.slots.length?`<p class="sub">Horarios disponibles para ${human(date)}</p><div class="slots">${state.slots.map((s,i)=>`<button class="slot" id="slot${i}" onclick="selectSlot(${i})">${s.horaPactadaCliente}</button>`).join('')}</div>`:'<div class="msg show err">No hay horarios disponibles.</div>';document.getElementById('formArea').innerHTML='';}
+async function selectDate(date){state.date=date;state.slot=null;drawCalendar();document.getElementById('slotsArea').textContent='Cargando horarios...';const r=await api('slots',{fecha:date,tipoBloque:'Relevamiento'});state.slots=obtenerArrayRespuesta(r,['slots','horarios','data','resultado']).map(s=>({...s,horaPactadaCliente:s.horaPactadaCliente||s.hora||s.slot||''})).filter(s=>s.horaPactadaCliente);document.getElementById('slotsArea').innerHTML=state.slots.length?`<p class="sub">Horarios disponibles para ${human(date)}</p><div class="slots">${state.slots.map((s,i)=>`<button class="slot" id="slot${i}" onclick="selectSlot(${i})">${s.horaPactadaCliente}</button>`).join('')}</div>`:'<div class="msg show err">No hay horarios disponibles.</div>';document.getElementById('formArea').innerHTML='';}
 function selectSlot(i){state.slot=state.slots[i];document.querySelectorAll('.slot').forEach(x=>x.classList.remove('selected'));document.getElementById('slot'+i).classList.add('selected');renderFormNueva();}
 function renderFormNueva(){document.getElementById('formArea').innerHTML=`<div class="card"><h3 class="title">Datos del cliente</h3><p class="sub">Turno: ${human(state.date)} a las ${state.slot.horaPactadaCliente}</p><div id="msgNueva" class="msg"></div><div class="row"><div class="field"><label>Vendedor</label><select id="vendedor">${VENDEDORES.map(v=>`<option>${v}</option>`).join('')}</select></div><div class="field"><label>Teléfono cliente</label><input id="telefono" placeholder="3815551234" /></div></div><div class="row"><div class="field"><label>Cliente</label><input id="cliente" /></div><div class="field"><label>Dirección</label><input id="direccion" /></div></div><div class="row"><div class="field"><label>¿Hay presupuesto preliminar?</label><select id="hayPresup" onchange="togglePresup()"><option>No</option><option>Sí</option></select></div><div class="field hidden" id="nroPresupWrap"><label>Nº presupuesto preliminar</label><input id="nroPresup" /></div></div><div class="field"><label>Descripción del relevamiento</label><textarea id="descripcion" placeholder="Guía para el instalador"></textarea></div><button class="btn" id="btnNueva" onclick="guardarProyecto()">Reservar turno de relevamiento</button></div>`;}
 function togglePresup(){document.getElementById('nroPresupWrap').classList.toggle('hidden',document.getElementById('hayPresup').value!=='Sí');}
-async function guardarProyecto(){const btn=document.getElementById('btnNueva');const datos={vendedor:vendedor.value,clienteNombre:cliente.value.trim(),clienteTelefono:telefono.value.trim(),clienteDireccion:direccion.value.trim(),hayPresupuestoPreliminar:hayPresup.value,nroPresupuestoPreliminar:(document.getElementById('nroPresup')||{}).value||'',descripcionRelevamiento:descripcion.value.trim(),fechaRelevamiento:state.date,horaRelevamiento:state.slot.horaPactadaCliente};if(!datos.clienteNombre||!datos.clienteTelefono||!datos.clienteDireccion||!datos.descripcionRelevamiento){msg('msgNueva','err','Completá todos los campos obligatorios.');return}setLoading(btn,true,'Guardando...');const r=await api('registrarProyecto',datos);setLoading(btn,false,'Reservar turno de relevamiento');if(r.ok){msg('msgNueva','ok','Proyecto creado: '+r.idProyecto);await cargarProyectos();state.date=null;state.slot=null;setTimeout(renderNueva,800)}else msg('msgNueva','err',r.error||'Error desconocido');}
+async function guardarProyecto(){const btn=document.getElementById('btnNueva');const datos={vendedor:vendedor.value,clienteNombre:cliente.value.trim(),clienteTelefono:telefono.value.trim(),clienteDireccion:direccion.value.trim(),hayPresupuestoPreliminar:hayPresup.value,nroPresupuestoPreliminar:(document.getElementById('nroPresup')||{}).value||'',descripcionRelevamiento:descripcion.value.trim(),fechaRelevamiento:state.date,horaRelevamiento:state.slot.horaPactadaCliente};if(!datos.clienteNombre||!datos.clienteTelefono||!datos.clienteDireccion||!datos.descripcionRelevamiento||(datos.hayPresupuestoPreliminar==='Sí'&&!datos.nroPresupuestoPreliminar)){msg('msgNueva','err','Completá todos los campos obligatorios.');return}setLoading(btn,true,'Guardando...');const r=await api('registrarProyecto',datos);setLoading(btn,false,'Reservar turno de relevamiento');if(r.ok){msg('msgNueva','ok','Proyecto creado: '+r.idProyecto);await cargarProyectos();state.date=null;state.slot=null;setTimeout(renderNueva,800)}else msg('msgNueva','err',r.error||'Error desconocido');}
 function renderPresupuesto(){const ps=state.proyectos.filter(p=>p.estado==='Presupuesto pendiente');document.getElementById('app').innerHTML=ps.length?ps.map(cardPresupuesto).join(''):'<div class="card"><p>No hay presupuestos pendientes.</p></div>';}
 function cardPresupuesto(p){return `<div class="card"><div class="project-head"><div><b>${p.id}</b><h3>${p.clienteNombre}</h3><div class="small">${p.clienteDireccion}</div></div><span class="badge">${p.estado}</span></div><hr><p><b>Descripción:</b> ${p.descripcionRelevamiento||'—'}</p><p><b>Relevamiento:</b> ${p.m2||'—'} m² · ${p.hsEst||'—'} hs</p><p><b>Observaciones:</b> ${p.observaciones||'—'}</p><div id="msg-${p.id}" class="msg"></div><div class="row"><div class="field"><label>Nº factura</label><input id="fac-${p.id}" placeholder="A-0003-00012345" /></div><div style="align-self:end"><button class="btn" onclick="confirmar('${p.id}')">Presupuesto confirmado</button></div></div></div>`;}
 async function confirmar(id){const nro=document.getElementById('fac-'+id).value.trim();if(!nro){msg('msg-'+id,'err','Cargá el número de factura.');return}const r=await api('confirmarPresupuesto',{idProyecto:id,nroFactura:nro});if(r.ok){msg('msg-'+id,'ok','Presupuesto confirmado.');await cargarProyectos();setTimeout(renderPresupuesto,800)}else msg('msg-'+id,'err',r.error||'Error');}
