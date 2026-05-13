@@ -1,370 +1,53 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Panel Vendedor — Revestimientos</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Panel Vendedor — Revestimientos MVP</title>
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --bg:#F5F3EF; --surface:#FFFFFF; --border:#E2DDD6; --border-2:#CCC7BF;
-  --text:#1A1814; --muted:#6B6760; --hint:#A09C97;
-  --accent:#1A5C45; --accent-bg:#E8F2EE; --accent-bd:#A8CFC0;
-  --amber:#C07800; --amber-bg:#FEF3E2; --amber-bd:#F0C070;
-  --blue:#1850A0; --blue-bg:#EBF2FF; --blue-bd:#90B8F8;
-  --danger:#C0392B; --radius:10px;
-}
-body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
-
-/* TOPBAR */
-.topbar { background:var(--surface); border-bottom:1px solid var(--border); padding:0 24px; height:54px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
-.brand { display:flex; align-items:center; gap:10px; font-weight:600; font-size:15px; color:var(--accent); }
-.brand-dot { width:8px; height:8px; background:var(--accent); border-radius:50%; }
-.topbar-right { font-size:12px; color:var(--muted); }
-
-/* LOADING */
-.loading-overlay { position:fixed; inset:0; background:rgba(245,243,239,.92); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; z-index:999; transition:opacity .3s; }
-.loading-overlay.hidden { opacity:0; pointer-events:none; }
-.spinner-lg { width:34px; height:34px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; }
-@keyframes spin { to { transform:rotate(360deg); } }
-
-/* TABS */
-.tabs { display:flex; border-bottom:1px solid var(--border); background:var(--surface); overflow-x:auto; padding:0 16px; scrollbar-width:none; }
-.tab { padding:14px 16px; font-size:13px; font-weight:500; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; white-space:nowrap; transition:all .15s; display:flex; align-items:center; gap:7px; }
-.tab.active { color:var(--text); border-bottom-color:var(--accent); }
-.tab-badge { font-size:10px; font-weight:600; padding:2px 6px; border-radius:10px; font-family:'DM Mono',monospace; }
-.badge-green  { background:var(--accent-bg); color:var(--accent); border:1px solid var(--accent-bd); }
-.badge-amber  { background:var(--amber-bg);  color:var(--amber);  border:1px solid var(--amber-bd); }
-.badge-blue   { background:var(--blue-bg);   color:var(--blue);   border:1px solid var(--blue-bd); }
-
-/* LAYOUT */
-.layout { display:grid; grid-template-columns:400px 1fr; min-height:calc(100vh - 97px); }
-@media(max-width:860px){ .layout { grid-template-columns:1fr; } }
-.panel-left { background:var(--surface); border-right:1px solid var(--border); padding:24px; display:flex; flex-direction:column; }
-.panel-right { padding:24px 32px; overflow-y:auto; }
-
-/* CALENDARIO */
-.section-title { font-size:11px; font-weight:500; color:var(--hint); text-transform:uppercase; letter-spacing:.08em; margin-bottom:14px; }
-.cal-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
-.cal-nav-btn { background:none; border:1px solid var(--border); border-radius:6px; width:30px; height:30px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--muted); }
-.cal-month { font-size:14px; font-weight:500; }
-.cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
-.cal-dow { text-align:center; font-size:10px; color:var(--hint); padding:3px 0 8px; text-transform:uppercase; }
-.cal-day { aspect-ratio:1; display:flex; align-items:center; justify-content:center; border-radius:7px; font-size:12px; cursor:pointer; position:relative; }
-.cal-day.empty, .cal-day.past { cursor:default; color:var(--hint); }
-.cal-day.today { font-weight:600; color:var(--accent); }
-.cal-day.selected { background:var(--accent); color:#fff; }
-.cal-day.has-events::before { content:''; position:absolute; top:4px; right:4px; width:4px; height:4px; background:#E8A020; border-radius:50%; }
-
-/* SLOTS */
-.slots-wrap { margin-top:20px; flex:1; overflow-y:auto; }
-.slots-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:10px; }
-.slot { padding:9px 11px; border-radius:7px; border:1px solid var(--border); background:#F0F7F4; cursor:pointer; }
-.slot.selected { border-color:var(--accent); background:var(--accent-bg); }
-.slot-time { font-size:12px; font-weight:500; font-family:'DM Mono',monospace; }
-
-/* FORM & CARDS */
-.main { max-width:800px; margin:0 auto; padding:20px 16px 40px; }
-.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:10px; padding:16px; }
-.card-id { font-size:11px; font-family:'DM Mono',monospace; color:var(--muted); }
-.card-name { font-size:15px; font-weight:600; margin:4px 0; }
-.card-addr { font-size:12px; color:var(--muted); }
-.status-chip { display:inline-block; font-size:11px; font-weight:600; padding:3px 9px; border-radius:20px; margin-top:8px; }
-.s-pendiente { background:var(--amber-bg); color:var(--amber); border:1px solid var(--amber-bd); }
-.s-presupuesto { background:#FFF0F5; color:#A0186A; border:1px solid #F0A0C8; }
-.s-confirmada { background:var(--blue-bg); color:var(--blue); border:1px solid var(--blue-bd); }
-.s-programada { background:var(--accent-bg); color:var(--accent); border:1px solid var(--accent-bd); }
-
-.field { display:flex; flex-direction:column; gap:5px; margin-bottom:12px; }
-.field label { font-size:12px; font-weight:500; color:var(--muted); }
-.field input, .field select { font-family:inherit; font-size:14px; padding:10px; border:1px solid var(--border); border-radius:var(--radius); width:100%; }
-.btn { width:100%; padding:13px; border:none; border-radius:var(--radius); font-weight:600; cursor:pointer; background:var(--accent); color:#fff; transition: opacity .2s; }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.msg { padding:10px; border-radius:var(--radius); font-size:13px; margin-bottom:15px; display:none; }
-.msg.visible { display:block; }
-.msg.error { background:#FEE; color:var(--danger); }
-.msg.success { background:var(--accent-bg); color:var(--accent); }
+:root{--bg:#f6f3ee;--card:#fff;--text:#1d1b16;--muted:#6d675f;--line:#ddd6cc;--accent:#1f5d47;--accent2:#e8f2ee;--danger:#b42318;--ok:#087443;--warn:#a15c00;--radius:14px}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}header{height:58px;background:var(--card);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 22px;position:sticky;top:0;z-index:10}.brand{font-weight:700;color:var(--accent)}.wrap{max-width:1050px;margin:22px auto;padding:0 14px}.tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}.tab{border:1px solid var(--line);background:var(--card);padding:10px 14px;border-radius:999px;cursor:pointer;color:var(--muted)}.tab.active{background:var(--accent);color:white;border-color:var(--accent)}.grid{display:grid;grid-template-columns:330px 1fr;gap:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:12px}.title{font-size:18px;font-weight:700;margin:0 0 6px}.sub{font-size:13px;color:var(--muted);margin:0 0 14px}.field{margin-bottom:11px}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:700}.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:14px;background:white}.field textarea{min-height:92px;resize:vertical}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.btn{border:0;background:var(--accent);color:white;border-radius:10px;padding:11px 14px;font-weight:700;cursor:pointer}.btn.secondary{background:#eee;color:var(--text);border:1px solid var(--line)}.btn.danger{background:var(--danger)}.btn:disabled{opacity:.5;cursor:not-allowed}.calendar-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.dow,.day{text-align:center;font-size:12px;padding:8px 0}.dow{color:var(--muted);font-weight:700}.day{background:#fff;border:1px solid var(--line);border-radius:8px;cursor:pointer}.day.past,.day.empty{opacity:.35;cursor:not-allowed}.day.selected{background:var(--accent);color:white}.slots{display:flex;gap:7px;flex-wrap:wrap}.slot{border:1px solid var(--line);background:white;border-radius:9px;padding:8px 10px;cursor:pointer}.slot.selected{background:var(--accent2);border-color:var(--accent);color:var(--accent);font-weight:700}.msg{display:none;border-radius:10px;padding:10px;margin:10px 0;font-size:13px}.msg.show{display:block}.msg.ok{background:#ecfdf3;color:var(--ok);border:1px solid #b7e4c7}.msg.err{background:#fff1f0;color:var(--danger);border:1px solid #f5c2bd}.badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;background:var(--accent2);color:var(--accent);font-weight:700}.project-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.small{font-size:12px;color:var(--muted)}.mono{font-family:Consolas,monospace}.hidden{display:none}@media(max-width:800px){.grid,.row{grid-template-columns:1fr}}
 </style>
 </head>
-<body onload="init()">
-
-<div class="loading-overlay" id="loading-overlay">
-  <div class="spinner-lg"></div>
-  <p>Cargando datos del sistema...</p>
+<body>
+<header><div class="brand">Revestimientos — Panel Vendedor</div><div id="clock" class="small"></div></header>
+<div class="wrap">
+  <div class="tabs">
+    <button class="tab active" data-tab="nueva" onclick="showTab('nueva')">Nueva solicitud</button>
+    <button class="tab" data-tab="presupuesto" onclick="showTab('presupuesto')">Confirmar presupuesto <span id="badgePresupuesto"></span></button>
+    <button class="tab" data-tab="activos" onclick="showTab('activos')">Activos</button>
+  </div>
+  <div id="app"></div>
 </div>
-
-<div class="topbar">
-  <div class="brand"><div class="brand-dot"></div>Revestimientos — Panel Vendedor</div>
-  <div class="topbar-right" id="clock"></div>
-</div>
-
-<div class="tabs">
-  <div class="tab active" data-tab="nueva" onclick="switchTab('nueva')">Nueva solicitud</div>
-  <div class="tab" data-tab="presupuesto" onclick="switchTab('presupuesto')">Confirmar Venta <span class="tab-badge badge-amber" id="badge-presupuesto">0</span></div>
-  <div class="tab" data-tab="activos" onclick="switchTab('activos')">Proyectos activos <span class="tab-badge badge-blue" id="badge-activos">0</span></div>
-</div>
-
-<div id="tab-content"></div>
-
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbwV575o3ZEghQyYhpU12MnAfUxk7fPjcCBnNc2rPoBvy7WaUQO2yhs_y4rsnldqOgCV/exec';
-
-const state = {
-  tab: 'nueva',
-  viewYear: new Date().getFullYear(),
-  viewMonth: new Date().getMonth(),
-  selectedDate: null,
-  selectedSlot: null,
-  slots: [],
-  cache: {},
-  proyectos: [],
-};
-
-const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-const DIAS_CORTO = ['Do','Lu','Ma','Mi','Ju','Vi','Sa'];
+const API_URL = 'https://script.google.com/macros/s/AKfycbyyxwT0JqzDOVpNP3Aj67aaquvqSHqCP96_pOQxOTdkA8xonGcnGE5-LSRuJiiTBlMc/exec';
 const VENDEDORES = ['Claudia Rodriguez','Alejandro Gurrea','Paola Alvarez','Daniel Dulor','Nestor Lombardini','Manuel Sosa'];
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-async function apiGet(params) {
-  const url = API_URL + '?' + new URLSearchParams(params);
-  const res = await fetch(url, {redirect:'follow'});
-  return res.json();
-}
-async function apiWrite(accion, datos) {
-  const params = new URLSearchParams({ accion, datos: encodeURIComponent(JSON.stringify(datos)) });
-  const res = await fetch(API_URL + '?' + params, {redirect:'follow'});
-  return res.json();
-}
-function formatDate(d) { return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function minToTime(m) { return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'); }
-
-// ── Inicialización ────────────────────────────────────────────────────────────
-function init() {
-  // Cargar proyectos y el mes actual simultáneamente
-  Promise.all([
-    apiGet({accion:'getProyectosVendedor'}).then(data => state.proyectos = data || []),
-    cargarMes(state.viewYear, state.viewMonth)
-  ]).then(() => {
-    actualizarBadges();
-    document.getElementById('loading-overlay').classList.add('hidden');
-    switchTab('nueva');
-  });
-}
-
-function cargarMes(anio, mes) {
-  const key = anio + '-' + mes;
-  if (state.cache[key]) return Promise.resolve();
-  return apiGet({accion:'bloques', anio, mes}).then(data => {
-    state.cache[key] = data;
-  });
-}
-
-function actualizarBadges() {
-  const presup = state.proyectos.filter(p => p.estado === 'Presupuesto pendiente').length;
-  const activos = state.proyectos.filter(p => p.estado !== 'Cerrado').length;
-  document.getElementById('badge-presupuesto').textContent = presup;
-  document.getElementById('badge-activos').textContent = activos;
-}
-
-// ── Tabs ──────────────────────────────────────────────────────────────────────
-function switchTab(tab) {
-  state.tab = tab;
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab===tab));
-  const content = document.getElementById('tab-content');
-  
-  if (tab === 'nueva') {
-    content.innerHTML = renderTabNuevaVenta();
-    renderCalendar();
-  } else if (tab === 'presupuesto') {
-    content.innerHTML = '<div class="main">' + renderTabPresupuesto() + '</div>';
-  } else {
-    content.innerHTML = '<div class="main">' + renderTabActivos() + '</div>';
-  }
-}
-
-// ── Render Nueva Venta ────────────────────────────────────────────────────────
-function renderTabNuevaVenta() {
-  return `<div class="layout">
-    <div class="panel-left">
-      <div class="section-title">Turnos Relevamiento</div>
-      <div class="cal-nav">
-        <button class="cal-nav-btn" onclick="changeMonth(-1)">←</button>
-        <span class="cal-month" id="cal-month-label">${MESES[state.viewMonth]} ${state.viewYear}</span>
-        <button class="cal-nav-btn" onclick="changeMonth(1)">→</button>
-      </div>
-      <div class="cal-grid" id="cal-grid"></div>
-      <div class="slots-wrap" id="slots-wrap"><div style="color:var(--hint);font-size:13px;text-align:center;padding:20px">Seleccioná un día</div></div>
-    </div>
-    <div class="panel-right" id="panel-right">
-      <div style="text-align:center;padding-top:100px;color:var(--hint)">
-        <p>Elegí un día y horario para cargar la solicitud</p>
-      </div>
-    </div>
-  </div>`;
-}
-
-function renderCalendar() {
-  const grid = document.getElementById('cal-grid');
-  if(!grid) return;
-  grid.innerHTML = '';
-  DIAS_CORTO.forEach(d => { const el=document.createElement('div'); el.className='cal-dow'; el.textContent=d; grid.appendChild(el); });
-  
-  const firstDay = new Date(state.viewYear, state.viewMonth, 1).getDay();
-  const days = new Date(state.viewYear, state.viewMonth + 1, 0).getDate();
-  const todayStr = formatDate(new Date());
-  const key = state.viewYear + '-' + state.viewMonth;
-  const bloques = (state.cache[key] && state.cache[key].bloques) ? state.cache[key].bloques : {};
-
-  for(let i=0; i<firstDay; i++) grid.appendChild(document.createElement('div'));
-  
-  for(let d=1; d<=days; d++) {
-    const dt = new Date(state.viewYear, state.viewMonth, d);
-    const dateStr = formatDate(dt);
-    const el = document.createElement('div');
-    el.className = 'cal-day' + (dateStr === todayStr ? ' today' : '') + (state.selectedDate === dateStr ? ' selected' : '');
-    if(bloques[dateStr]) el.classList.add('has-events');
-    el.textContent = d;
-    el.onclick = () => selectDate(dateStr);
-    grid.appendChild(el);
-  }
-}
-
-function changeMonth(dir) {
-  state.viewMonth += dir;
-  if(state.viewMonth > 11) { state.viewMonth = 0; state.viewYear++; }
-  if(state.viewMonth < 0) { state.viewMonth = 11; state.viewYear--; }
-  document.getElementById('loading-overlay').classList.remove('hidden');
-  cargarMes(state.viewYear, state.viewMonth).then(() => {
-    document.getElementById('loading-overlay').classList.add('hidden');
-    renderCalendar();
-    document.getElementById('cal-month-label').textContent = MESES[state.viewMonth] + ' ' + state.viewYear;
-  });
-}
-
-function selectDate(dateStr) {
-  state.selectedDate = dateStr;
-  renderCalendar();
-  const key = state.viewYear + '-' + state.viewMonth;
-  const cfg = state.cache[key].config;
-  const bloquesDia = state.cache[key].bloques[dateStr] || [];
-  
-  let slots = [];
-  for(let t = cfg.jornadaIni; t + cfg.durRelev <= cfg.jornadaFin; t += 30) {
-    if(bloquesDia.every(b => (t + cfg.durRelev <= b.ini || t >= b.fin))) {
-      slots.push({ inicio: minToTime(t), fin: minToTime(t + cfg.durRelev) });
-    }
-  }
-  state.slots = slots;
-  
-  const wrap = document.getElementById('slots-wrap');
-  wrap.innerHTML = '<div class="slots-grid">' + slots.map((s,i) => `
-    <div class="slot" onclick="selectSlot(${i})" id="slot-${i}">
-      <div class="slot-time">${s.inicio}</div>
-    </div>`).join('') + '</div>';
-}
-
-function selectSlot(i) {
-  state.selectedSlot = state.slots[i];
-  document.querySelectorAll('.slot').forEach((s,idx) => s.classList.toggle('selected', idx===i));
-  
-  document.getElementById('panel-right').innerHTML = `
-    <h2 style="margin-bottom:20px">Nueva Solicitud</h2>
-    <div id="msg-form" class="msg"></div>
-    <div class="field"><label>Vendedor</label><select id="f-vendedor">${VENDEDORES.map(v=>`<option>${v}</option>`).join('')}</select></div>
-    <div class="field"><label>Nombre Cliente</label><input type="text" id="f-nombre"></div>
-    <div class="field"><label>Teléfono</label><input type="text" id="f-tel"></div>
-    <div class="field"><label>Dirección</label><input type="text" id="f-dir"></div>
-    <div class="field"><label>Producto</label><input type="text" id="f-prod"></div>
-    <button class="btn" id="btn-save" onclick="guardarSolicitud()">Reservar Turno Relevamiento</button>
-  `;
-}
-
-function guardarSolicitud() {
-  const datos = {
-    vendedor: document.getElementById('f-vendedor').value,
-    clienteNombre: document.getElementById('f-nombre').value,
-    clienteTelefono: document.getElementById('f-tel').value,
-    clienteDireccion: document.getElementById('f-dir').value,
-    producto: document.getElementById('f-prod').value,
-    fecha: state.selectedDate,
-    horaInicio: state.selectedSlot.inicio
-  };
-  if(!datos.clienteNombre || !datos.clienteDireccion) return alert('Nombre y Dirección son obligatorios');
-  
-  document.getElementById('btn-save').disabled = true;
-  document.getElementById('btn-save').textContent = 'Guardando...';
-  
-  apiWrite('registrarProyecto', datos).then(res => {
-    if(res.ok) {
-      alert('Solicitud creada con éxito. La página se reiniciará.');
-      window.location.reload();
-    }
-  });
-}
-
-// ── Render Proyectos Activos ──────────────────────────────────────────────────
-function renderTabActivos() {
-  const activos = state.proyectos
-    .filter(p => p.estado !== 'Cerrado')
-    .sort((a, b) => {
-      // Ordenar por fechaProximaAccion (Ascendente)
-      if (!a.fechaProximaAccion) return 1;
-      if (!b.fechaProximaAccion) return -1;
-      return a.fechaProximaAccion.localeCompare(b.fechaProximaAccion);
-    });
-
-  if(!activos.length) return '<p>No hay proyectos activos.</p>';
-  
-  const statusClass = { 'Pendiente relevamiento':'s-pendiente', 'Presupuesto pendiente':'s-presupuesto', 'Instalación confirmada':'s-confirmada', 'Instalación programada':'s-programada' };
-  
-  return activos.map(p => `
-    <div class="card">
-      <div style="display:flex; justify-content:space-between">
-        <span class="card-id">${p.id}</span>
-        <span style="font-size:10px; color:var(--accent)">Acción: ${p.fechaProximaAccion || 'Pendiente'}</span>
-      </div>
-      <div class="card-name">${p.clienteNombre}</div>
-      <div class="card-addr">${p.clienteDireccion}</div>
-      <span class="status-chip ${statusClass[p.estado] || ''}">${p.estado}</span>
-    </div>
-  `).join('');
-}
-
-// ── Render Confirmar Presupuesto (Venta) ───────────────────────────────────────
-function renderTabPresupuesto() {
-  const pendientes = state.proyectos.filter(p => p.estado === 'Presupuesto pendiente');
-  if(!pendientes.length) return '<div style="text-align:center;padding:40px;color:var(--hint)">No hay presupuestos pendientes de confirmación.</div>';
-  
-  return pendientes.map(p => `
-    <div class="card">
-      <div class="card-id">${p.id}</div>
-      <div class="card-name">${p.clienteNombre}</div>
-      <p style="font-size:12px; margin-bottom:10px">Esperando número de factura para confirmar venta.</p>
-      <div class="field" style="margin-bottom:8px">
-        <input type="text" id="factura-${p.id}" placeholder="Nro de Factura / Remito">
-      </div>
-      <button class="btn" onclick="confirmarVenta('${p.id}')">Confirmar Venta y Cobro</button>
-    </div>
-  `).join('');
-}
-
-function confirmarVenta(idProyecto) {
-  const nroFactura = document.getElementById('factura-' + idProyecto).value;
-  if(!nroFactura) return alert('Debes ingresar el número de factura');
-  
-  document.getElementById('loading-overlay').classList.remove('hidden');
-  apiWrite('confirmarVenta', { idProyecto, nroFactura }).then(res => {
-    if(res.ok) {
-      alert('Venta confirmada. Ahora el instalador podrá programar la instalación.');
-      window.location.reload();
-    } else {
-      alert('Error al confirmar');
-      document.getElementById('loading-overlay').classList.add('hidden');
-    }
-  });
-}
-
+const state={tab:'nueva',proyectos:[],year:new Date().getFullYear(),month:new Date().getMonth(),date:null,slot:null,slots:[]};
+const meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const dows=['Do','Lu','Ma','Mi','Ju','Vi','Sa'];
+function tick(){document.getElementById('clock').textContent=new Date().toLocaleString('es-AR',{dateStyle:'medium',timeStyle:'short'});}tick();setInterval(tick,30000);
+function enc(d){return encodeURIComponent(JSON.stringify(d||{}));}
+async function api(accion,datos){const res=await fetch(API_URL+'?accion='+encodeURIComponent(accion)+'&datos='+enc(datos),{redirect:'follow'});return res.json();}
+async function apiPlain(params){const res=await fetch(API_URL+'?'+new URLSearchParams(params),{redirect:'follow'});return res.json();}
+function fmtDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function human(s){if(!s)return '—';const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'});}
+function msg(id,type,text){const el=document.getElementById(id); if(!el)return; el.className='msg show '+(type==='ok'?'ok':'err'); el.textContent=text;}
+function setLoading(btn,loading,text){btn.disabled=loading; if(text)btn.textContent=text;}
+async function cargarProyectos(){const data=await apiPlain({accion:'getProyectosVendedor'});state.proyectos=Array.isArray(data)?data:[];document.getElementById('badgePresupuesto').textContent='('+state.proyectos.filter(p=>p.estado==='Presupuesto pendiente').length+')';}
+function showTab(tab){state.tab=tab;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));render();}
+async function init(){await cargarProyectos();render();}init().catch(e=>{document.getElementById('app').innerHTML='<div class="msg show err">Error cargando datos: '+e.message+'</div>';});
+function render(){if(state.tab==='nueva')renderNueva(); else if(state.tab==='presupuesto')renderPresupuesto(); else renderActivos();}
+function renderNueva(){document.getElementById('app').innerHTML=`<div class="grid"><div class="card"><div class="calendar-head"><button class="btn secondary" onclick="moveMonth(-1)">←</button><b>${meses[state.month]} ${state.year}</b><button class="btn secondary" onclick="moveMonth(1)">→</button></div><div class="cal" id="cal"></div></div><div><div class="card"><h2 class="title">Nueva solicitud de relevamiento</h2><p class="sub">Elegí fecha y hora pactada con el cliente. El sistema bloquea traslado previo, relevamiento y salida operativa.</p><div id="slotsArea">Seleccioná un día.</div></div><div id="formArea"></div></div></div>`;drawCalendar();}
+function drawCalendar(){const cal=document.getElementById('cal');cal.innerHTML='';dows.forEach(d=>cal.innerHTML+=`<div class="dow">${d}</div>`);const first=new Date(state.year,state.month,1).getDay();const days=new Date(state.year,state.month+1,0).getDate();for(let i=0;i<first;i++)cal.innerHTML+='<div class="day empty"></div>';const today=new Date();const today0=new Date(today.getFullYear(),today.getMonth(),today.getDate());for(let d=1;d<=days;d++){const dt=new Date(state.year,state.month,d);const date=fmtDate(dt);const past=dt<today0||dt.getDay()===0;cal.innerHTML+=`<div class="day ${past?'past':''} ${state.date===date?'selected':''}" ${past?'':'onclick="selectDate(\''+date+'\')"'}>${d}</div>`;}}
+function moveMonth(n){state.month+=n;if(state.month<0){state.month=11;state.year--}if(state.month>11){state.month=0;state.year++}state.date=null;state.slot=null;renderNueva();}
+async function selectDate(date){state.date=date;state.slot=null;drawCalendar();document.getElementById('slotsArea').textContent='Cargando horarios...';const r=await api('slots',{fecha:date,tipoBloque:'Relevamiento'});state.slots=(r&&r.ok&&r.slots)||[];document.getElementById('slotsArea').innerHTML=state.slots.length?`<p class="sub">Horarios disponibles para ${human(date)}</p><div class="slots">${state.slots.map((s,i)=>`<button class="slot" id="slot${i}" onclick="selectSlot(${i})">${s.horaPactadaCliente}</button>`).join('')}</div>`:'<div class="msg show err">No hay horarios disponibles.</div>';document.getElementById('formArea').innerHTML='';}
+function selectSlot(i){state.slot=state.slots[i];document.querySelectorAll('.slot').forEach(x=>x.classList.remove('selected'));document.getElementById('slot'+i).classList.add('selected');renderFormNueva();}
+function renderFormNueva(){document.getElementById('formArea').innerHTML=`<div class="card"><h3 class="title">Datos del cliente</h3><p class="sub">Turno: ${human(state.date)} a las ${state.slot.horaPactadaCliente}</p><div id="msgNueva" class="msg"></div><div class="row"><div class="field"><label>Vendedor</label><select id="vendedor">${VENDEDORES.map(v=>`<option>${v}</option>`).join('')}</select></div><div class="field"><label>Teléfono cliente</label><input id="telefono" placeholder="3815551234" /></div></div><div class="row"><div class="field"><label>Cliente</label><input id="cliente" /></div><div class="field"><label>Dirección</label><input id="direccion" /></div></div><div class="row"><div class="field"><label>¿Hay presupuesto preliminar?</label><select id="hayPresup" onchange="togglePresup()"><option>No</option><option>Sí</option></select></div><div class="field hidden" id="nroPresupWrap"><label>Nº presupuesto preliminar</label><input id="nroPresup" /></div></div><div class="field"><label>Descripción del relevamiento</label><textarea id="descripcion" placeholder="Guía para el instalador"></textarea></div><button class="btn" id="btnNueva" onclick="guardarProyecto()">Reservar turno de relevamiento</button></div>`;}
+function togglePresup(){document.getElementById('nroPresupWrap').classList.toggle('hidden',document.getElementById('hayPresup').value!=='Sí');}
+async function guardarProyecto(){const btn=document.getElementById('btnNueva');const datos={vendedor:vendedor.value,clienteNombre:cliente.value.trim(),clienteTelefono:telefono.value.trim(),clienteDireccion:direccion.value.trim(),hayPresupuestoPreliminar:hayPresup.value,nroPresupuestoPreliminar:(document.getElementById('nroPresup')||{}).value||'',descripcionRelevamiento:descripcion.value.trim(),fechaRelevamiento:state.date,horaRelevamiento:state.slot.horaPactadaCliente};if(!datos.clienteNombre||!datos.clienteTelefono||!datos.clienteDireccion||!datos.descripcionRelevamiento){msg('msgNueva','err','Completá todos los campos obligatorios.');return}setLoading(btn,true,'Guardando...');const r=await api('registrarProyecto',datos);setLoading(btn,false,'Reservar turno de relevamiento');if(r.ok){msg('msgNueva','ok','Proyecto creado: '+r.idProyecto);await cargarProyectos();state.date=null;state.slot=null;setTimeout(renderNueva,800)}else msg('msgNueva','err',r.error||'Error desconocido');}
+function renderPresupuesto(){const ps=state.proyectos.filter(p=>p.estado==='Presupuesto pendiente');document.getElementById('app').innerHTML=ps.length?ps.map(cardPresupuesto).join(''):'<div class="card"><p>No hay presupuestos pendientes.</p></div>';}
+function cardPresupuesto(p){return `<div class="card"><div class="project-head"><div><b>${p.id}</b><h3>${p.clienteNombre}</h3><div class="small">${p.clienteDireccion}</div></div><span class="badge">${p.estado}</span></div><hr><p><b>Descripción:</b> ${p.descripcionRelevamiento||'—'}</p><p><b>Relevamiento:</b> ${p.m2||'—'} m² · ${p.hsEst||'—'} hs</p><p><b>Observaciones:</b> ${p.observaciones||'—'}</p><div id="msg-${p.id}" class="msg"></div><div class="row"><div class="field"><label>Nº factura</label><input id="fac-${p.id}" placeholder="A-0003-00012345" /></div><div style="align-self:end"><button class="btn" onclick="confirmar('${p.id}')">Presupuesto confirmado</button></div></div></div>`;}
+async function confirmar(id){const nro=document.getElementById('fac-'+id).value.trim();if(!nro){msg('msg-'+id,'err','Cargá el número de factura.');return}const r=await api('confirmarPresupuesto',{idProyecto:id,nroFactura:nro});if(r.ok){msg('msg-'+id,'ok','Presupuesto confirmado.');await cargarProyectos();setTimeout(renderPresupuesto,800)}else msg('msg-'+id,'err',r.error||'Error');}
+function renderActivos(){const ps=state.proyectos.filter(p=>p.estado!=='Cerrado'&&p.estado!=='Presupuesto rechazado');document.getElementById('app').innerHTML=ps.length?ps.map(p=>`<div class="card"><div class="project-head"><div><b>${p.id}</b><h3>${p.clienteNombre}</h3><div class="small">${p.clienteDireccion}</div></div><span class="badge">${p.estado}</span></div><p>${p.descripcionRelevamiento||''}</p><p class="small">Factura: ${p.nroFactura||'—'} · Relev: ${p.fechaRelevamiento||'—'} · Instalación: ${p.fechaInstalacion||'—'}</p></div>`).join(''):'<div class="card"><p>No hay proyectos activos.</p></div>';}
 </script>
 </body>
 </html>
