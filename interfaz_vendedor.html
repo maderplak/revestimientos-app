@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Panel Vendedor — Revestimientos MVP</title>
+<link rel="icon" href="data:,">
 <style>
 :root{--bg:#f6f3ee;--card:#fff;--text:#1d1b16;--muted:#6d675f;--line:#ddd6cc;--accent:#1f5d47;--accent2:#e8f2ee;--danger:#b42318;--ok:#087443;--warn:#a15c00;--radius:14px}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}header{height:58px;background:var(--card);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 22px;position:sticky;top:0;z-index:10}.brand{font-weight:700;color:var(--accent)}.wrap{max-width:1050px;margin:22px auto;padding:0 14px}.tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}.tab{border:1px solid var(--line);background:var(--card);padding:10px 14px;border-radius:999px;cursor:pointer;color:var(--muted)}.tab.active{background:var(--accent);color:white;border-color:var(--accent)}.grid{display:grid;grid-template-columns:330px 1fr;gap:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:12px}.title{font-size:18px;font-weight:700;margin:0 0 6px}.sub{font-size:13px;color:var(--muted);margin:0 0 14px}.field{margin-bottom:11px}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:700}.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:14px;background:white}.field textarea{min-height:92px;resize:vertical}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.btn{border:0;background:var(--accent);color:white;border-radius:10px;padding:11px 14px;font-weight:700;cursor:pointer}.btn.secondary{background:#eee;color:var(--text);border:1px solid var(--line)}.btn.danger{background:var(--danger)}.btn:disabled{opacity:.5;cursor:not-allowed}.calendar-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.dow,.day{text-align:center;font-size:12px;padding:8px 0}.dow{color:var(--muted);font-weight:700}.day{background:#fff;border:1px solid var(--line);border-radius:8px;cursor:pointer}.day.past,.day.empty{opacity:.35;cursor:not-allowed}.day.selected{background:var(--accent);color:white}.slots{display:flex;gap:7px;flex-wrap:wrap}.slot{border:1px solid var(--line);background:white;border-radius:9px;padding:8px 10px;cursor:pointer}.slot.selected{background:var(--accent2);border-color:var(--accent);color:var(--accent);font-weight:700}.msg{display:none;border-radius:10px;padding:10px;margin:10px 0;font-size:13px}.msg.show{display:block}.msg.ok{background:#ecfdf3;color:var(--ok);border:1px solid #b7e4c7}.msg.err{background:#fff1f0;color:var(--danger);border:1px solid #f5c2bd}.badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;background:var(--accent2);color:var(--accent);font-weight:700}.project-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.small{font-size:12px;color:var(--muted)}.mono{font-family:Consolas,monospace}.hidden{display:none}@media(max-width:800px){.grid,.row{grid-template-columns:1fr}}
 </style>
@@ -21,7 +22,7 @@
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbyyxwT0JqzDOVpNP3Aj67aaquvqSHqCP96_pOQxOTdkA8xonGcnGE5-LSRuJiiTBlMc/exec';
 const VENDEDORES = ['Claudia Rodriguez','Alejandro Gurrea','Paola Alvarez','Daniel Dulor','Nestor Lombardini','Manuel Sosa'];
-const state={tab:'nueva',proyectos:[],year:new Date().getFullYear(),month:new Date().getMonth(),date:null,slot:null,slots:[]};
+const state={tab:'nueva',proyectos:[],year:new Date().getFullYear(),month:new Date().getMonth(),date:null,slot:null,slots:[],bloquesMesCache:{},verificandoSlots:false};
 const meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const dows=['Do','Lu','Ma','Mi','Ju','Vi','Sa'];
 function tick(){document.getElementById('clock').textContent=new Date().toLocaleString('es-AR',{dateStyle:'medium',timeStyle:'short'});}tick();setInterval(tick,30000);
@@ -34,6 +35,40 @@ async function api(accion,datos){const res=await fetch(API_URL+'?accion='+encode
 async function apiPlain(params){const res=await fetch(API_URL+'?'+new URLSearchParams(params),{redirect:'follow'});return leerJsonSeguro(res);}
 function fmtDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function human(s){if(!s)return '—';const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'});}
+
+function t2m(t){
+  if(t===null||t===undefined||t==='') return null;
+  if(typeof t==='number'){
+    if(t>0 && t<1) return Math.round(t*24*60);
+    if(t>=0 && t<1440) return Math.round(t);
+  }
+  const raw=String(t).trim();
+  let m=raw.match(/^(\d{1,2}):(\d{2})/);
+  if(m) return parseInt(m[1],10)*60+parseInt(m[2],10);
+  m=raw.match(/T(\d{2}):(\d{2})/);
+  if(m) return parseInt(m[1],10)*60+parseInt(m[2],10);
+  m=raw.match(/\b(\d{1,2}):(\d{2})(?::\d{2})?\b/);
+  if(m) return parseInt(m[1],10)*60+parseInt(m[2],10);
+  return null;
+}
+function m2t(m){return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');}
+function jornadaLocal(fecha){const [y,mo,d]=fecha.split('-').map(Number);const dow=new Date(y,mo-1,d).getDay();if(dow===0)return null;if(dow===6)return{min:570,max:720};return{min:510,max:990};}
+function calcBloqueLocal(fecha,hora,tipo='Relevamiento',duracionMin=30){const pact=t2m(hora);const dur=tipo==='Relevamiento'?30:Number(duracionMin||30);return{fecha,tipoBloque:tipo,horaPactadaCliente:hora,horaInicioBloque:m2t(pact-30),horaFinTrabajoCliente:m2t(pact+dur),horaFinBloque:m2t(pact+dur+30),inicioMin:pact-30,finMin:pact+dur+30};}
+function normalizarBloqueAgenda(b){const ini=t2m(b.horaInicioBloque||b.inicioBloque||b.horaInicio||'');const fin=t2m(b.horaFinBloque||b.finBloque||b.horaFin||'');return{...b,inicioMin:ini,finMin:fin,estadoBloque:String(b.estadoBloque||b.estado||'').trim()};}
+function hayConflictoLocal(bloque,bloques){return (bloques||[]).map(normalizarBloqueAgenda).some(x=>x.estadoBloque==='Programado' && x.inicioMin!==null && x.finMin!==null && bloque.inicioMin < x.finMin && bloque.finMin > x.inicioMin);}
+async function cargarBloquesMesActual(force=false){
+  const key=state.year+'-'+state.month;
+  if(!force && state.bloquesMesCache[key]) return state.bloquesMesCache[key];
+  const r=await apiPlain({accion:'bloques',anio:state.year,mes:state.month});
+  if(r && r.ok===false) throw new Error(r.error||'No se pudo leer agenda');
+  const bloques=(r&&r.bloques)||{};
+  Object.keys(bloques).forEach(fecha=>{ bloques[fecha]=(bloques[fecha]||[]).map(normalizarBloqueAgenda); });
+  state.bloquesMesCache[key]=bloques;
+  return bloques;
+}
+function generarSlotsLocales(fecha,bloquesMes){const j=jornadaLocal(fecha);if(!j)return[];const bloquesDia=(bloquesMes&&bloquesMes[fecha])||[];const out=[];for(let m=j.min;m<=j.max;m+=30){const hora=m2t(m);const b=calcBloqueLocal(fecha,hora,'Relevamiento',30);if(b.inicioMin<0||b.finMin>j.max)continue;if(!hayConflictoLocal(b,bloquesDia))out.push(b);}return out;}
+function renderSlotsRapido(fecha,nota){document.getElementById('slotsArea').innerHTML=state.slots.length?`<p class="sub">Horarios disponibles para ${human(fecha)} ${nota||''}</p><div class="slots">${state.slots.map((s,i)=>`<button class="slot" id="slot${i}" onclick="selectSlot(${i})">${s.horaPactadaCliente}</button>`).join('')}</div>`:'<div class="msg show err">No hay horarios disponibles para esta fecha.</div>';document.getElementById('formArea').innerHTML='';}
+
 function msg(id,type,text){const el=document.getElementById(id); if(!el)return; el.className='msg show '+(type==='ok'?'ok':'err'); el.textContent=text;}
 function setLoading(btn,loading,text){btn.disabled=loading; if(text)btn.textContent=text;}
 function obtenerArrayRespuesta(res, claves){
@@ -76,16 +111,48 @@ async function cargarProyectos(){
   if(badge) badge.textContent='('+state.proyectos.filter(p=>p.estado==='Presupuesto pendiente').length+')';
 }
 function showTab(tab){state.tab=tab;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));render();}
-async function init(){await cargarProyectos();render();}init().catch(e=>{document.getElementById('app').innerHTML='<div class="msg show err">Error cargando datos: '+e.message+'</div>';});
+async function precargarMesActual(){try{await cargarBloquesMesActual(true);}catch(e){console.warn('No se pudo precargar agenda del mes:',e);}}
+async function init(){await cargarProyectos();render();precargarMesActual();}init().catch(e=>{document.getElementById('app').innerHTML='<div class="msg show err">Error cargando datos: '+e.message+'</div>';});
 function render(){if(state.tab==='nueva')renderNueva(); else if(state.tab==='presupuesto')renderPresupuesto(); else renderActivos();}
 function renderNueva(){document.getElementById('app').innerHTML=`<div class="grid"><div class="card"><div class="calendar-head"><button class="btn secondary" onclick="moveMonth(-1)">←</button><b>${meses[state.month]} ${state.year}</b><button class="btn secondary" onclick="moveMonth(1)">→</button></div><div class="cal" id="cal"></div></div><div><div class="card"><h2 class="title">Nueva solicitud de relevamiento</h2><p class="sub">Elegí fecha y hora pactada con el cliente. El sistema bloquea traslado previo, relevamiento y salida operativa.</p><div id="slotsArea">Seleccioná un día.</div></div><div id="formArea"></div></div></div>`;drawCalendar();}
 function drawCalendar(){const cal=document.getElementById('cal');cal.innerHTML='';dows.forEach(d=>cal.innerHTML+=`<div class="dow">${d}</div>`);const first=new Date(state.year,state.month,1).getDay();const days=new Date(state.year,state.month+1,0).getDate();for(let i=0;i<first;i++)cal.innerHTML+='<div class="day empty"></div>';const today=new Date();const today0=new Date(today.getFullYear(),today.getMonth(),today.getDate());for(let d=1;d<=days;d++){const dt=new Date(state.year,state.month,d);const date=fmtDate(dt);const past=dt<today0||dt.getDay()===0;cal.innerHTML+=`<div class="day ${past?'past':''} ${state.date===date?'selected':''}" ${past?'':'onclick="selectDate(\''+date+'\')"'}>${d}</div>`;}}
-function moveMonth(n){state.month+=n;if(state.month<0){state.month=11;state.year--}if(state.month>11){state.month=0;state.year++}state.date=null;state.slot=null;renderNueva();}
-async function selectDate(date){state.date=date;state.slot=null;drawCalendar();document.getElementById('slotsArea').textContent='Cargando horarios...';const r=await api('slots',{fecha:date,tipoBloque:'Relevamiento'});state.slots=obtenerArrayRespuesta(r,['slots','horarios','data','resultado']).map(s=>({...s,horaPactadaCliente:s.horaPactadaCliente||s.hora||s.slot||''})).filter(s=>s.horaPactadaCliente);document.getElementById('slotsArea').innerHTML=state.slots.length?`<p class="sub">Horarios disponibles para ${human(date)}</p><div class="slots">${state.slots.map((s,i)=>`<button class="slot" id="slot${i}" onclick="selectSlot(${i})">${s.horaPactadaCliente}</button>`).join('')}</div>`:'<div class="msg show err">No hay horarios disponibles.</div>';document.getElementById('formArea').innerHTML='';}
+function moveMonth(n){state.month+=n;if(state.month<0){state.month=11;state.year--}if(state.month>11){state.month=0;state.year++}state.date=null;state.slot=null;renderNueva();precargarMesActual();}
+async function selectDate(date){
+  state.date=date;state.slot=null;drawCalendar();
+  const key=state.year+'-'+state.month;
+  const cache=state.bloquesMesCache[key]||{};
+  state.slots=generarSlotsLocales(date,cache);
+  renderSlotsRapido(date, state.bloquesMesCache[key]?'':'<span class="small">· validación final al guardar</span>');
+  // Verificación en segundo plano: no bloquea al vendedor en mostrador.
+  state.verificandoSlots=true;
+  const bloques=await cargarBloquesMesActual();
+  state.verificandoSlots=false;
+  if(state.date!==date)return;
+  const prev=state.slot?state.slot.horaPactadaCliente:null;
+  state.slots=generarSlotsLocales(date,bloques);
+  renderSlotsRapido(date,'<span class="small">· disponibilidad actualizada</span>');
+  if(prev){const idx=state.slots.findIndex(s=>s.horaPactadaCliente===prev);if(idx>=0)selectSlot(idx);}
+}
 function selectSlot(i){state.slot=state.slots[i];document.querySelectorAll('.slot').forEach(x=>x.classList.remove('selected'));document.getElementById('slot'+i).classList.add('selected');renderFormNueva();}
 function renderFormNueva(){document.getElementById('formArea').innerHTML=`<div class="card"><h3 class="title">Datos del cliente</h3><p class="sub">Turno: ${human(state.date)} a las ${state.slot.horaPactadaCliente}</p><div id="msgNueva" class="msg"></div><div class="row"><div class="field"><label>Vendedor</label><select id="vendedor">${VENDEDORES.map(v=>`<option>${v}</option>`).join('')}</select></div><div class="field"><label>Teléfono cliente</label><input id="telefono" placeholder="3815551234" /></div></div><div class="row"><div class="field"><label>Cliente</label><input id="cliente" /></div><div class="field"><label>Dirección</label><input id="direccion" /></div></div><div class="row"><div class="field"><label>¿Hay presupuesto preliminar?</label><select id="hayPresup" onchange="togglePresup()"><option>No</option><option>Sí</option></select></div><div class="field hidden" id="nroPresupWrap"><label>Nº presupuesto preliminar</label><input id="nroPresup" /></div></div><div class="field"><label>Descripción del relevamiento</label><textarea id="descripcion" placeholder="Guía para el instalador"></textarea></div><button class="btn" id="btnNueva" onclick="guardarProyecto()">Reservar turno de relevamiento</button></div>`;}
 function togglePresup(){document.getElementById('nroPresupWrap').classList.toggle('hidden',document.getElementById('hayPresup').value!=='Sí');}
-async function guardarProyecto(){const btn=document.getElementById('btnNueva');const datos={vendedor:vendedor.value,clienteNombre:cliente.value.trim(),clienteTelefono:telefono.value.trim(),clienteDireccion:direccion.value.trim(),hayPresupuestoPreliminar:hayPresup.value,nroPresupuestoPreliminar:(document.getElementById('nroPresup')||{}).value||'',descripcionRelevamiento:descripcion.value.trim(),fechaRelevamiento:state.date,horaRelevamiento:state.slot.horaPactadaCliente};if(!datos.clienteNombre||!datos.clienteTelefono||!datos.clienteDireccion||!datos.descripcionRelevamiento||(datos.hayPresupuestoPreliminar==='Sí'&&!datos.nroPresupuestoPreliminar)){msg('msgNueva','err','Completá todos los campos obligatorios.');return}setLoading(btn,true,'Guardando...');const r=await api('registrarProyecto',datos);setLoading(btn,false,'Reservar turno de relevamiento');if(r.ok){msg('msgNueva','ok','Proyecto creado: '+r.idProyecto);await cargarProyectos();state.date=null;state.slot=null;setTimeout(renderNueva,800)}else msg('msgNueva','err',r.error||'Error desconocido');}
+async function guardarProyecto(){
+  const btn=document.getElementById('btnNueva');
+  const datos={vendedor:vendedor.value,clienteNombre:cliente.value.trim(),clienteTelefono:telefono.value.trim(),clienteDireccion:direccion.value.trim(),hayPresupuestoPreliminar:hayPresup.value,nroPresupuestoPreliminar:(document.getElementById('nroPresup')||{}).value||'',descripcionRelevamiento:descripcion.value.trim(),fechaRelevamiento:state.date,horaRelevamiento:state.slot&&state.slot.horaPactadaCliente};
+  if(!state.slot){msg('msgNueva','err','Seleccioná un horario disponible.');return}
+  if(!datos.clienteNombre||!datos.clienteTelefono||!datos.clienteDireccion||!datos.descripcionRelevamiento||(datos.hayPresupuestoPreliminar==='Sí'&&!datos.nroPresupuestoPreliminar)){msg('msgNueva','err','Completá todos los campos obligatorios.');return}
+  setLoading(btn,true,'Validando agenda...');
+  try{
+    const bloques=await cargarBloquesMesActual(true);
+    const bloque=calcBloqueLocal(datos.fechaRelevamiento,datos.horaRelevamiento,'Relevamiento',30);
+    if(hayConflictoLocal(bloque,bloques[datos.fechaRelevamiento]||[])){setLoading(btn,false,'Reservar turno de relevamiento');msg('msgNueva','err','Ese horario ya fue tomado. Elegí otro horario disponible.');state.slots=generarSlotsLocales(datos.fechaRelevamiento,bloques);renderSlotsRapido(datos.fechaRelevamiento,'<span class="small">· agenda actualizada</span>');return;}
+    setLoading(btn,true,'Guardando...');
+    const r=await api('registrarProyecto',datos);
+    setLoading(btn,false,'Reservar turno de relevamiento');
+    if(r.ok){msg('msgNueva','ok','Proyecto creado: '+r.idProyecto);state.bloquesMesCache={};await cargarProyectos();state.date=null;state.slot=null;setTimeout(renderNueva,700)}
+    else msg('msgNueva','err',r.error||'Error desconocido');
+  }catch(e){setLoading(btn,false,'Reservar turno de relevamiento');msg('msgNueva','err','No se pudo guardar. Revisá conexión o permisos de la Web App. '+e.message);}
+}
 function renderPresupuesto(){const ps=state.proyectos.filter(p=>p.estado==='Presupuesto pendiente');document.getElementById('app').innerHTML=ps.length?ps.map(cardPresupuesto).join(''):'<div class="card"><p>No hay presupuestos pendientes.</p></div>';}
 function cardPresupuesto(p){return `<div class="card"><div class="project-head"><div><b>${p.id}</b><h3>${p.clienteNombre}</h3><div class="small">${p.clienteDireccion}</div></div><span class="badge">${p.estado}</span></div><hr><p><b>Descripción:</b> ${p.descripcionRelevamiento||'—'}</p><p><b>Relevamiento:</b> ${p.m2||'—'} m² · ${p.hsEst||'—'} hs</p><p><b>Observaciones:</b> ${p.observaciones||'—'}</p><div id="msg-${p.id}" class="msg"></div><div class="row"><div class="field"><label>Nº factura</label><input id="fac-${p.id}" placeholder="A-0003-00012345" /></div><div style="align-self:end"><button class="btn" onclick="confirmar('${p.id}')">Presupuesto confirmado</button></div></div></div>`;}
 async function confirmar(id){const nro=document.getElementById('fac-'+id).value.trim();if(!nro){msg('msg-'+id,'err','Cargá el número de factura.');return}const r=await api('confirmarPresupuesto',{idProyecto:id,nroFactura:nro});if(r.ok){msg('msg-'+id,'ok','Presupuesto confirmado.');await cargarProyectos();setTimeout(renderPresupuesto,800)}else msg('msg-'+id,'err',r.error||'Error');}
