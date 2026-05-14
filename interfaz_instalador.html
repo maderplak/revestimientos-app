@@ -41,7 +41,10 @@ body{margin:0;background:#f3f0e8;color:var(--text);font-family:system-ui,-apple-
 </div>
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbyyxwT0JqzDOVpNP3Aj67aaquvqSHqCP96_pOQxOTdkA8xonGcnGE5-LSRuJiiTBlMc/exec';
-const state = { tab:'hoy', proyectos:[], tareasHoy:[], alertas:[], dispCache:{}, dispPromises:{}, selectedSlots:{}, warmStarted:false };
+const state = { tab:'hoy', proyectos:[], tareasHoy:[], alertas:[], bloquesCache:{}, bloquesPromises:{}, selectedSlots:{}, warmStarted:false };
+
+// La instalación usa cálculo local de slots basado en bloques reales de agenda.
+// No usamos disponibilidadMes para instalaciones porque puede ser lento con duraciones variables.
 
 const EST = { PEND:'Pendiente relevamiento', PRES:'Presupuesto pendiente', CONF:'Instalación confirmada', PROG:'Instalación programada', INST:'Instalado', OBS:'Instalación observada', CERR:'Cerrado' };
 const MOTIVOS = ['Superficie en peor estado que lo relevado','Demora por condiciones del cliente','Mayor complejidad de cortes o terminaciones','Falta o ajuste de material','Herramientas/equipos','Estimación inicial insuficiente','Otro'];
@@ -154,45 +157,130 @@ function renderHoy(){
 }
 function renderRelevamiento(){ const items=sortByAction(state.proyectos.filter(p=>p.estado===EST.PEND),'relevamiento'); renderCards(items,p=>cardBase(p,relevamientoBody(p))); }
 async function guardarRelevamiento(id){ const m2=$(`m2-${id}`).value.trim(); const hs=$(`hs-${id}`).value.trim(); const obs=$(`obs-${id}`).value.trim(); if(!m2||!hs||!obs) return show('Completá m², horas estimadas y observaciones.','err'); if(Number(hs)%1!==0) return show('Las horas estimadas deben ser enteras.','err'); try{ const res=await apiAction('cargarRelevamiento',{idProyecto:id,m2Relevados:m2,horasEstimadasInstalacion:Number(hs),observacionesRelevamiento:obs}); if(!res.ok) throw new Error(res.error||'No se pudo guardar'); show('Relevamiento guardado correctamente.','ok'); await loadAll(); }catch(e){show(e.message,'err')} }
-function dispKey(year, month, duracionMin){ return `${year}-${month}-Instalación-${duracionMin}`; }
-function monthInfoFromDate(fecha){ const d=new Date(fecha+'T12:00:00'); return {year:d.getFullYear(), month:d.getMonth()}; }
-async function getDisponibilidadInstalacion(year, month, duracionMin){
-  const key=dispKey(year,month,duracionMin);
-  if(state.dispCache[key]) return state.dispCache[key];
-  if(state.dispPromises[key]) return state.dispPromises[key];
-  state.dispPromises[key]=apiGet({accion:'disponibilidadMes',anio:year,mes:month,tipoBloque:'Instalación',duracionTrabajoMin:duracionMin})
-    .then(res=>{ if(!res.ok) throw new Error(res.error||'No se pudo consultar disponibilidad'); state.dispCache[key]=res; delete state.dispPromises[key]; return res; })
-    .catch(err=>{ delete state.dispPromises[key]; throw err; });
-  return state.dispPromises[key];
+function monthInfoFromDate(fecha){
+  const d=new Date(fecha+'T12:00:00');
+  return {year:d.getFullYear(), month:d.getMonth()};
 }
-function renderSlotsInstalacion(id, fecha, disponibilidad){
+function bloquesKey(year, month){ return `${year}-${month}`; }
+function timeToMinLocal(h){
+  h = fmtTime(h);
+  const m = String(h||'').match(/^(\d{1,2}):(\d{2})$/);
+  if(!m) return null;
+  return Number(m[1])*60 + Number(m[2]);
+}
+function minToTimeLocal(m){
+  return `${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;
+}
+function jornadaLocal(fecha){
+  const d = new Date(fecha+'T12:00:00');
+  const dow = d.getDay();
+  if(dow === 0) return null;
+  if(dow === 6) return { minPactable: 9*60+30, maxFinBloque: 12*60 };
+  return { minPactable: 8*60+30, maxFinBloque: 16*60+30 };
+}
+function calcularBloqueLocal(horaPactada, duracionMin){
+  const pactada = timeToMinLocal(horaPactada);
+  if(pactada === null) return null;
+  return {
+    hora: minToTimeLocal(pactada),
+    inicio: pactada - 30,
+    finTrabajo: pactada + Number(duracionMin||0),
+    fin: pactada + Number(duracionMin||0) + 30,
+    horaInicioBloque: minToTimeLocal(pactada - 30),
+    horaFinTrabajoCliente: minToTimeLocal(pactada + Number(duracionMin||0)),
+    horaFinBloque: minToTimeLocal(pactada + Number(duracionMin||0) + 30)
+  };
+}
+async function getBloquesMesLocal(year, month){
+  const key=bloquesKey(year,month);
+  if(state.bloquesCache[key]) return state.bloquesCache[key];
+  if(state.bloquesPromises[key]) return state.bloquesPromises[key];
+  state.bloquesPromises[key]=apiGet({accion:'bloques',anio:year,mes:month})
+    .then(res=>{
+      if(!res.ok) throw new Error(res.error||'No se pudo consultar agenda');
+      const data = res.bloques || {};
+      state.bloquesCache[key]=data;
+      delete state.bloquesPromises[key];
+      return data;
+    })
+    .catch(err=>{ delete state.bloquesPromises[key]; throw err; });
+  return state.bloquesPromises[key];
+}
+function calcularSlotsInstalacionLocal(fecha, duracionMin, bloquesPorFecha){
+  const jornada = jornadaLocal(fecha);
+  if(!jornada) return [];
+  const bloquesDia = (bloquesPorFecha && bloquesPorFecha[fecha] ? bloquesPorFecha[fecha] : [])
+    .filter(b => String(b.estadoBloque||'').trim() === 'Programado')
+    .map(b => ({
+      inicio: timeToMinLocal(b.horaInicioBloque),
+      fin: timeToMinLocal(b.horaFinBloque),
+      raw: b
+    }))
+    .filter(b => b.inicio !== null && b.fin !== null);
+
+  const slots=[];
+  for(let m=jornada.minPactable; m<=jornada.maxFinBloque; m+=30){
+    const nuevo = calcularBloqueLocal(minToTimeLocal(m), duracionMin);
+    if(!nuevo) continue;
+    if(nuevo.fin > jornada.maxFinBloque) continue;
+    const conflicto = bloquesDia.some(b => nuevo.inicio < b.fin && nuevo.fin > b.inicio);
+    if(!conflicto) slots.push(nuevo);
+  }
+  return slots;
+}
+function renderSlotsInstalacion(id, fecha, bloquesPorFecha){
   const box=$(`slots-inst-${id}`);
+  const p=state.proyectos.find(x=>x.id===id);
   state.selectedSlots[id]='';
-  const dia=disponibilidad && disponibilidad.dias ? disponibilidad.dias[fecha] : null;
-  const slots=(dia&&dia.slots)||[];
-  if(!slots.length){ box.innerHTML='<div class="calcBox">No hay horarios disponibles para esa fecha.</div>'; return; }
-  box.innerHTML=`<div class="slots">${slots.map(s=>`<button type="button" class="slot" onclick="selectSlot('${id}','${s.hora||s.horaPactadaCliente}',this)">${s.hora||s.horaPactadaCliente}</button>`).join('')}</div>`;
+  const duracionMin=Number(p && p.hsEst ? p.hsEst : 0)*60;
+  const slots=calcularSlotsInstalacionLocal(fecha, duracionMin, bloquesPorFecha);
+  if(!slots.length){
+    box.innerHTML='<div class="calcBox">No hay horarios disponibles para esa fecha.</div>';
+    return;
+  }
+  box.innerHTML=`<div class="slots">${slots.map(s=>`<button type="button" class="slot" onclick="selectSlot('${id}','${s.hora}',this)">${s.hora}</button>`).join('')}</div>`;
 }
 function warmCoordinarAvailability(){
+  // Precarga liviana: trae solo bloques reales de agenda, no calcula slots en servidor.
   const confirmados=state.proyectos.filter(p=>p.estado===EST.CONF && Number(p.hsEst||0)>0);
   if(!confirmados.length) return;
   const now=new Date();
-  const months=[{year:now.getFullYear(),month:now.getMonth()},{year:new Date(now.getFullYear(),now.getMonth()+1,1).getFullYear(),month:new Date(now.getFullYear(),now.getMonth()+1,1).getMonth()}];
-  const duraciones=[...new Set(confirmados.map(p=>Number(p.hsEst||0)*60).filter(Boolean))];
-  duraciones.forEach(dur=>months.forEach(m=>getDisponibilidadInstalacion(m.year,m.month,dur).catch(()=>{})));
+  const n1=new Date(now.getFullYear(),now.getMonth()+1,1);
+  const months=[{year:now.getFullYear(),month:now.getMonth()},{year:n1.getFullYear(),month:n1.getMonth()}];
+  months.forEach(m=>getBloquesMesLocal(m.year,m.month).catch(()=>{}));
 }
-function renderCoordinar(){ const items=sortByAction(state.proyectos.filter(p=>p.estado===EST.CONF),'coordinar'); renderCards(items,p=>cardBase(p,coordinarBody(p))); setTimeout(warmCoordinarAvailability,0); }
+function renderCoordinar(){
+  const items=sortByAction(state.proyectos.filter(p=>p.estado===EST.CONF),'coordinar');
+  renderCards(items,p=>cardBase(p,coordinarBody(p)));
+  setTimeout(warmCoordinarAvailability,0);
+}
 async function cargarSlotsInstalacion(id){
-  const p=state.proyectos.find(x=>x.id===id); const fecha=$(`fecha-inst-${id}`).value; const box=$(`slots-inst-${id}`); state.selectedSlots[id]=''; if(!fecha||!p) return;
+  const p=state.proyectos.find(x=>x.id===id);
+  const fecha=$(`fecha-inst-${id}`).value;
+  const box=$(`slots-inst-${id}`);
+  state.selectedSlots[id]='';
+  if(!fecha||!p) return;
   const duracionMin=Number(p.hsEst||0)*60;
-  if(!duracionMin){ box.innerHTML='<div class="calcBox" style="color:#a42316">No hay horas estimadas cargadas para este proyecto.</div>'; return; }
-  const {year,month}=monthInfoFromDate(fecha); const key=dispKey(year,month,duracionMin);
-  if(state.dispCache[key]){ renderSlotsInstalacion(id,fecha,state.dispCache[key]); return; }
-  box.innerHTML='<span class="loader"></span>Preparando agenda del mes...';
-  try{ const res=await getDisponibilidadInstalacion(year,month,duracionMin); renderSlotsInstalacion(id,fecha,res); }catch(e){box.innerHTML=`<div class="calcBox" style="color:#a42316">${esc(e.message)}</div>`;}
+  if(!duracionMin){
+    box.innerHTML='<div class="calcBox" style="color:#a42316">No hay horas estimadas cargadas para este proyecto.</div>';
+    return;
+  }
+  const {year,month}=monthInfoFromDate(fecha);
+  const key=bloquesKey(year,month);
+  if(state.bloquesCache[key]){
+    renderSlotsInstalacion(id,fecha,state.bloquesCache[key]);
+    return;
+  }
+  box.innerHTML='<span class="loader"></span>Leyendo agenda real del mes...';
+  try{
+    const bloques=await getBloquesMesLocal(year,month);
+    renderSlotsInstalacion(id,fecha,bloques);
+  }catch(e){
+    box.innerHTML=`<div class="calcBox" style="color:#a42316">${esc(e.message)}</div>`;
+  }
 }
 function selectSlot(id,hora,el){ state.selectedSlots[id]=hora; const cont=el.parentElement; cont.querySelectorAll('.slot').forEach(b=>b.classList.remove('selected')); el.classList.add('selected'); }
-async function programarInstalacionUI(id){ const p=state.proyectos.find(x=>x.id===id); const fecha=$(`fecha-inst-${id}`).value; const hora=state.selectedSlots[id]; const obs=$(`coord-obs-${id}`).value.trim(); if(!fecha||!hora) return show('Seleccioná fecha y horario disponible.','err'); try{ const check=await apiGet({accion:'slotsDia',fecha:fecha,tipoBloque:'Instalación',duracionTrabajoMin:Number(p.hsEst||0)*60}); const okSlot=(check.slots||[]).some(s=>(s.hora||s.horaPactadaCliente)===hora); if(!check.ok || !okSlot) throw new Error('El horario ya no está disponible. Elegí otro.'); const res=await apiAction('programarInstalacion',{idProyecto:id,fechaInstalacion:fecha,horaPactadaCliente:hora,observacionCoordinacion:obs}); if(!res.ok) throw new Error(res.error||'No se pudo programar'); show('Instalación programada. Abrí el WhatsApp si corresponde.','ok'); if(res.whatsapp && res.whatsapp.url) window.open(res.whatsapp.url,'_blank'); await loadAll(); }catch(e){show(e.message,'err')} }
+async function programarInstalacionUI(id){ const p=state.proyectos.find(x=>x.id===id); const fecha=$(`fecha-inst-${id}`).value; const hora=state.selectedSlots[id]; const obs=$(`coord-obs-${id}`).value.trim(); if(!fecha||!hora) return show('Seleccioná fecha y horario disponible.','err'); try{ const check=await apiGet({accion:'slotsDia',fecha:fecha,tipoBloque:'Instalación',duracionTrabajoMin:Number(p.hsEst||0)*60}); const okSlot=(check.slots||[]).some(s=>(s.hora||s.horaPactadaCliente)===hora); if(!check.ok || !okSlot) throw new Error('El horario ya no está disponible. Elegí otro.'); const res=await apiAction('programarInstalacion',{idProyecto:id,fechaInstalacion:fecha,horaPactadaCliente:hora,observacionCoordinacion:obs}); if(!res.ok) throw new Error(res.error||'No se pudo programar'); show('Instalación programada. Abrí el WhatsApp si corresponde.','ok'); if(res.whatsapp && res.whatsapp.url) window.open(res.whatsapp.url,'_blank'); state.bloquesCache={}; state.bloquesPromises={}; await loadAll(); }catch(e){show(e.message,'err')} }
 function renderCalidad(){ const items=sortByAction(state.proyectos.filter(p=>p.estado===EST.PROG),'calidad'); renderCards(items,p=>cardBase(p,calidadBody(p))); }
 function toggleDesvCal(id){ $(`desvcalbox-${id}`).classList.toggle('hidden', $(`desvcal-${id}`).value!=='Sí'); }
 async function finalizarInstalacionUI(id){ const g=(x)=>$(x+'-'+id); const p=state.proyectos.find(x=>x.id===id); const req=['freal','hini','hfin','m2inst','ofinal']; for(const r of req){ if(!g(r).value.trim()) return show('Completá los campos obligatorios de performance y observaciones finales.','err'); } const checks=['controlInstalacionOK','controlTerminacionesOK','controlLimpiezaOK','controlRetiroMaterialesOK','controlClienteInformadoOK']; if(checks.some(c=>!g(c).checked)) return show('Todos los controles deben quedar OK para finalizar.','err'); const hubo=g('desvcal').value; if(hubo==='Sí' && (!g('detcal').value.trim() || !g('acccal').value.trim())) return show('Completá detalle y acción correctiva del desvío de calidad.','err'); try{ const data={idProyecto:id,fechaInstalacionReal:g('freal').value,horaLlegadaDomicilio:g('hini').value,horaFinalizacionCheck:g('hfin').value,m2Instalados:g('m2inst').value,motivoDesvio:g('motivo').value,observacionPerformance:g('operf').value,controlInstalacionOK:'OK',controlTerminacionesOK:'OK',controlLimpiezaOK:'OK',controlRetiroMaterialesOK:'OK',controlClienteInformadoOK:'OK',huboDesvioCalidad:hubo,detalleDesvioCalidad:g('detcal')?g('detcal').value:'',accionCorrectiva:g('acccal')?g('acccal').value:'',observacionesFinales:g('ofinal').value}; const res=await apiAction('finalizarInstalacion',data); if(!res.ok) throw new Error(res.error||'No se pudo finalizar'); show('Instalación finalizada. Conforme pendiente generado.','ok'); await loadAll(); }catch(e){show(e.message,'err')} }
