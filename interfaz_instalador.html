@@ -81,7 +81,7 @@ function updateBadges(){ const c={hoy:state.tareasHoy.length+state.alertas.lengt
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{state.tab=b.dataset.tab; document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===state.tab)); render();}));
 function render(){ if(state.tab==='hoy') return renderHoy(); if(state.tab==='relevamiento') return renderRelevamiento(); if(state.tab==='coordinar') return renderCoordinar(); if(state.tab==='calidad') return renderCalidad(); if(state.tab==='conforme') return renderConforme(); }
 function renderCards(items, fn){ $('app').innerHTML = items.length ? `<div class="cardGrid">${items.map(fn).join('')}</div>` : `<div class="empty">No hay elementos pendientes en esta sección.</div>`; }
-function cardBase(p, body){return `<div class="card"><div class="cardHead"><div class="id">${esc(p.id)} · ${esc(p.estado)}</div><div class="client">${esc(p.clienteNombre)}</div><div class="addr">${esc(p.clienteDireccion)}</div><div class="chiprow">${p.clienteTelefono?`<span class="chip">Tel. ${esc(p.clienteTelefono)}</span>`:''}${p.fechaRelevamiento?`<span class="chip blue">Rel. ${formatHuman(p.fechaRelevamiento)} ${esc(p.horaRelevamiento)}</span>`:''}${p.hsEst?`<span class="chip green">${esc(p.hsEst)} hs est.</span>`:''}</div></div><div class="cardBody">${body}</div></div>`}
+function cardBase(p, body){return `<div class="card"><div class="cardHead"><div class="id">${esc(p.id)} · ${esc(p.estado)}</div><div class="client">${esc(p.clienteNombre)}</div><div class="addr">${esc(p.clienteDireccion)}</div><div class="chiprow">${p.clienteTelefono?`<span class="chip">Tel. ${esc(p.clienteTelefono)}</span>`:''}${p.fechaRelevamiento?`<span class="chip blue">Rel. ${formatHuman(p.fechaRelevamiento)} ${esc(fmtTime(p.horaRelevamiento))}</span>`:''}${p.hsEst?`<span class="chip green">${esc(p.hsEst)} hs est.</span>`:''}</div></div><div class="cardBody">${body}</div></div>`}
 
 function normDate(v){
   if(!v) return '';
@@ -96,8 +96,12 @@ function fmtTime(v){
   const str=String(v).trim();
   let m=str.match(/^(\d{1,2}):(\d{2})/);
   if(m) return `${String(m[1]).padStart(2,'0')}:${m[2]}`;
+  // Si llega una hora serializada como fecha de 1899 desde Sheets, no mostramos la fecha completa.
+  // De todos modos, el backend v5 ya envía las horas de Agenda como texto visible.
   m=str.match(/T(\d{2}):(\d{2})/);
   if(m) return `${m[1]}:${m[2]}`;
+  m=str.match(/(\d{1,2}):(\d{2})/);
+  if(m) return `${String(m[1]).padStart(2,'0')}:${m[2]}`;
   return str;
 }
 function dateTimeValue(fecha,hora){
