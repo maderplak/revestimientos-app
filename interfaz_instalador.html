@@ -41,7 +41,8 @@ body{margin:0;background:#f3f0e8;color:var(--text);font-family:system-ui,-apple-
 </div>
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbyyxwT0JqzDOVpNP3Aj67aaquvqSHqCP96_pOQxOTdkA8xonGcnGE5-LSRuJiiTBlMc/exec';
-const state = { tab:'hoy', proyectos:[], tareasHoy:[], alertas:[], dispCache:{}, selectedSlots:{} };
+const state = { tab:'hoy', proyectos:[], tareasHoy:[], alertas:[], dispCache:{}, dispPromises:{}, selectedSlots:{}, warmStarted:false };
+
 const EST = { PEND:'Pendiente relevamiento', PRES:'Presupuesto pendiente', CONF:'Instalación confirmada', PROG:'Instalación programada', INST:'Instalado', OBS:'Instalación observada', CERR:'Cerrado' };
 const MOTIVOS = ['Superficie en peor estado que lo relevado','Demora por condiciones del cliente','Mayor complejidad de cortes o terminaciones','Falta o ajuste de material','Herramientas/equipos','Estimación inicial insuficiente','Otro'];
 function $(id){return document.getElementById(id)}
@@ -76,7 +77,7 @@ function mapProyecto(p){return {
   hsEst:p.hsEst||p.horasEstimadasInstalacion||'',
   observaciones:p.observaciones||p.observacionesRelevamiento||''
 }}
-async function loadAll(){ try{ show('Actualizando información...', 'info'); const [proy,hoy] = await Promise.all([apiGet({accion:'proyectos'}), apiGet({accion:'hoy'})]); state.proyectos = normalizeList(proy).map(mapProyecto); state.tareasHoy = (hoy&&hoy.tareasHoy)||[]; state.alertas = (hoy&&hoy.alertas)||[]; updateBadges(); render(); }catch(e){ console.error(e); show('No se pudo cargar información: '+e.message,'err'); render(); } }
+async function loadAll(){ try{ show('Actualizando información...', 'info'); const [proy,hoy] = await Promise.all([apiGet({accion:'proyectos'}), apiGet({accion:'hoy'})]); state.proyectos = normalizeList(proy).map(mapProyecto); state.tareasHoy = (hoy&&hoy.tareasHoy)||[]; state.alertas = (hoy&&hoy.alertas)||[]; updateBadges(); render(); setTimeout(warmCoordinarAvailability,0); }catch(e){ console.error(e); show('No se pudo cargar información: '+e.message,'err'); render(); } }
 function updateBadges(){ const c={hoy:state.tareasHoy.length+state.alertas.length,relevamiento:0,coordinar:0,calidad:0,conforme:0}; state.proyectos.forEach(p=>{ if(p.estado===EST.PEND)c.relevamiento++; if(p.estado===EST.CONF)c.coordinar++; if(p.estado===EST.PROG)c.calidad++; if(p.estado===EST.INST)c.conforme++; }); $('b-hoy').textContent=c.hoy; $('b-relevamiento').textContent=c.relevamiento; $('b-coordinar').textContent=c.coordinar; $('b-calidad').textContent=c.calidad; $('b-conforme').textContent=c.conforme; }
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{state.tab=b.dataset.tab; document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===state.tab)); render();}));
 function render(){ if(state.tab==='hoy') return renderHoy(); if(state.tab==='relevamiento') return renderRelevamiento(); if(state.tab==='coordinar') return renderCoordinar(); if(state.tab==='calidad') return renderCalidad(); if(state.tab==='conforme') return renderConforme(); }
@@ -153,8 +154,43 @@ function renderHoy(){
 }
 function renderRelevamiento(){ const items=sortByAction(state.proyectos.filter(p=>p.estado===EST.PEND),'relevamiento'); renderCards(items,p=>cardBase(p,relevamientoBody(p))); }
 async function guardarRelevamiento(id){ const m2=$(`m2-${id}`).value.trim(); const hs=$(`hs-${id}`).value.trim(); const obs=$(`obs-${id}`).value.trim(); if(!m2||!hs||!obs) return show('Completá m², horas estimadas y observaciones.','err'); if(Number(hs)%1!==0) return show('Las horas estimadas deben ser enteras.','err'); try{ const res=await apiAction('cargarRelevamiento',{idProyecto:id,m2Relevados:m2,horasEstimadasInstalacion:Number(hs),observacionesRelevamiento:obs}); if(!res.ok) throw new Error(res.error||'No se pudo guardar'); show('Relevamiento guardado correctamente.','ok'); await loadAll(); }catch(e){show(e.message,'err')} }
-function renderCoordinar(){ const items=sortByAction(state.proyectos.filter(p=>p.estado===EST.CONF),'coordinar'); renderCards(items,p=>cardBase(p,coordinarBody(p))); }
-async function cargarSlotsInstalacion(id){ const p=state.proyectos.find(x=>x.id===id); const fecha=$(`fecha-inst-${id}`).value; const box=$(`slots-inst-${id}`); state.selectedSlots[id]=''; if(!fecha||!p) return; box.innerHTML='<span class="loader"></span>Consultando agenda real...'; try{ const d=new Date(fecha+'T12:00:00'); const res=await apiGet({accion:'disponibilidadMes',anio:d.getFullYear(),mes:d.getMonth(),tipoBloque:'Instalación',duracionTrabajoMin:Number(p.hsEst||0)*60}); if(!res.ok) throw new Error(res.error||'No se pudo consultar disponibilidad'); const dia=res.dias&&res.dias[fecha]; const slots=(dia&&dia.slots)||[]; if(!slots.length){box.innerHTML='<div class="calcBox">No hay horarios disponibles para esa fecha.</div>'; return;} box.innerHTML=`<div class="slots">${slots.map(s=>`<button type="button" class="slot" onclick="selectSlot('${id}','${s.hora}',this)">${s.hora}</button>`).join('')}</div>`; }catch(e){box.innerHTML=`<div class="calcBox" style="color:#a42316">${esc(e.message)}</div>`;} }
+function dispKey(year, month, duracionMin){ return `${year}-${month}-Instalación-${duracionMin}`; }
+function monthInfoFromDate(fecha){ const d=new Date(fecha+'T12:00:00'); return {year:d.getFullYear(), month:d.getMonth()}; }
+async function getDisponibilidadInstalacion(year, month, duracionMin){
+  const key=dispKey(year,month,duracionMin);
+  if(state.dispCache[key]) return state.dispCache[key];
+  if(state.dispPromises[key]) return state.dispPromises[key];
+  state.dispPromises[key]=apiGet({accion:'disponibilidadMes',anio:year,mes:month,tipoBloque:'Instalación',duracionTrabajoMin:duracionMin})
+    .then(res=>{ if(!res.ok) throw new Error(res.error||'No se pudo consultar disponibilidad'); state.dispCache[key]=res; delete state.dispPromises[key]; return res; })
+    .catch(err=>{ delete state.dispPromises[key]; throw err; });
+  return state.dispPromises[key];
+}
+function renderSlotsInstalacion(id, fecha, disponibilidad){
+  const box=$(`slots-inst-${id}`);
+  state.selectedSlots[id]='';
+  const dia=disponibilidad && disponibilidad.dias ? disponibilidad.dias[fecha] : null;
+  const slots=(dia&&dia.slots)||[];
+  if(!slots.length){ box.innerHTML='<div class="calcBox">No hay horarios disponibles para esa fecha.</div>'; return; }
+  box.innerHTML=`<div class="slots">${slots.map(s=>`<button type="button" class="slot" onclick="selectSlot('${id}','${s.hora||s.horaPactadaCliente}',this)">${s.hora||s.horaPactadaCliente}</button>`).join('')}</div>`;
+}
+function warmCoordinarAvailability(){
+  const confirmados=state.proyectos.filter(p=>p.estado===EST.CONF && Number(p.hsEst||0)>0);
+  if(!confirmados.length) return;
+  const now=new Date();
+  const months=[{year:now.getFullYear(),month:now.getMonth()},{year:new Date(now.getFullYear(),now.getMonth()+1,1).getFullYear(),month:new Date(now.getFullYear(),now.getMonth()+1,1).getMonth()}];
+  const duraciones=[...new Set(confirmados.map(p=>Number(p.hsEst||0)*60).filter(Boolean))];
+  duraciones.forEach(dur=>months.forEach(m=>getDisponibilidadInstalacion(m.year,m.month,dur).catch(()=>{})));
+}
+function renderCoordinar(){ const items=sortByAction(state.proyectos.filter(p=>p.estado===EST.CONF),'coordinar'); renderCards(items,p=>cardBase(p,coordinarBody(p))); setTimeout(warmCoordinarAvailability,0); }
+async function cargarSlotsInstalacion(id){
+  const p=state.proyectos.find(x=>x.id===id); const fecha=$(`fecha-inst-${id}`).value; const box=$(`slots-inst-${id}`); state.selectedSlots[id]=''; if(!fecha||!p) return;
+  const duracionMin=Number(p.hsEst||0)*60;
+  if(!duracionMin){ box.innerHTML='<div class="calcBox" style="color:#a42316">No hay horas estimadas cargadas para este proyecto.</div>'; return; }
+  const {year,month}=monthInfoFromDate(fecha); const key=dispKey(year,month,duracionMin);
+  if(state.dispCache[key]){ renderSlotsInstalacion(id,fecha,state.dispCache[key]); return; }
+  box.innerHTML='<span class="loader"></span>Preparando agenda del mes...';
+  try{ const res=await getDisponibilidadInstalacion(year,month,duracionMin); renderSlotsInstalacion(id,fecha,res); }catch(e){box.innerHTML=`<div class="calcBox" style="color:#a42316">${esc(e.message)}</div>`;}
+}
 function selectSlot(id,hora,el){ state.selectedSlots[id]=hora; const cont=el.parentElement; cont.querySelectorAll('.slot').forEach(b=>b.classList.remove('selected')); el.classList.add('selected'); }
 async function programarInstalacionUI(id){ const p=state.proyectos.find(x=>x.id===id); const fecha=$(`fecha-inst-${id}`).value; const hora=state.selectedSlots[id]; const obs=$(`coord-obs-${id}`).value.trim(); if(!fecha||!hora) return show('Seleccioná fecha y horario disponible.','err'); try{ const check=await apiGet({accion:'slotsDia',fecha:fecha,tipoBloque:'Instalación',duracionTrabajoMin:Number(p.hsEst||0)*60}); const okSlot=(check.slots||[]).some(s=>(s.hora||s.horaPactadaCliente)===hora); if(!check.ok || !okSlot) throw new Error('El horario ya no está disponible. Elegí otro.'); const res=await apiAction('programarInstalacion',{idProyecto:id,fechaInstalacion:fecha,horaPactadaCliente:hora,observacionCoordinacion:obs}); if(!res.ok) throw new Error(res.error||'No se pudo programar'); show('Instalación programada. Abrí el WhatsApp si corresponde.','ok'); if(res.whatsapp && res.whatsapp.url) window.open(res.whatsapp.url,'_blank'); await loadAll(); }catch(e){show(e.message,'err')} }
 function renderCalidad(){ const items=sortByAction(state.proyectos.filter(p=>p.estado===EST.PROG),'calidad'); renderCards(items,p=>cardBase(p,calidadBody(p))); }
