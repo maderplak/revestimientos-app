@@ -16,17 +16,12 @@ header{height:58px;background:var(--card);border-bottom:1px solid var(--line);di
 .wrap{max-width:1120px;margin:22px auto;padding:0 14px}.tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}.tab{border:1px solid var(--line);background:var(--card);padding:10px 14px;border-radius:999px;cursor:pointer;color:var(--muted);font-weight:600}.tab.active{background:var(--accent);color:white;border-color:var(--accent)}
 .grid{display:grid;grid-template-columns:330px 1fr;gap:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}.title{font-size:18px;font-weight:700;margin:0 0 6px}.sub{font-size:13px;color:var(--muted);margin:0 0 14px;line-height:1.4}.small{font-size:12px;color:var(--muted)}
 .field{margin-bottom:11px}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:700}.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:14px;background:white}.field textarea{min-height:92px;resize:vertical}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.btn{border:0;background:var(--accent);color:white;border-radius:10px;padding:11px 14px;font-weight:700;cursor:pointer}.btn.secondary{background:#eee;color:var(--text);border:1px solid var(--line)}.btn.danger{background:var(--danger)}.btn:disabled{opacity:.55;cursor:not-allowed}
-.calendar-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.dow,.day{text-align:center;font-size:12px;padding:8px 0}.dow{color:var(--muted);font-weight:700}.day{background:#fff;border:1px solid var(--line);border-radius:8px;cursor:pointer}.day:hover:not(.past):not(.empty):not(.disabled){border-color:var(--accent)}.day.past,.day.empty,.day.disabled{opacity:.35;cursor:not-allowed}.day.selected{background:var(--accent);color:white}.day.has-block::after{content:'';display:block;width:5px;height:5px;border-radius:999px;background:var(--warn);margin:3px auto 0}.day.has-slots{font-weight:700}
+.calendar-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.dow,.day{text-align:center;font-size:12px;padding:8px 0}.dow{color:var(--muted);font-weight:700}.day{background:#fff;border:1px solid var(--line);border-radius:8px;cursor:pointer}.day:hover:not(.past):not(.empty){border-color:var(--accent)}.day.past,.day.empty{opacity:.35;cursor:not-allowed}.day.selected{background:var(--accent);color:white}.day.has-block::after{content:'';display:block;width:5px;height:5px;border-radius:999px;background:var(--warn);margin:3px auto 0}
 .slots{display:flex;gap:7px;flex-wrap:wrap}.slot{border:1px solid var(--line);background:white;border-radius:9px;padding:9px 12px;cursor:pointer;font-weight:700}.slot:hover{border-color:var(--accent)}.slot.selected{background:var(--accent2);border-color:var(--accent);color:var(--accent)}
 .msg{display:none;border-radius:10px;padding:10px;margin:10px 0;font-size:13px;line-height:1.4}.msg.show,.msg.info{display:block}.msg.ok{background:#ecfdf3;color:var(--ok);border:1px solid #b7e4c7}.msg.err{background:#fff1f0;color:var(--danger);border:1px solid #f5c2bd}.msg.info{background:#f3f6f4;color:var(--muted);border:1px solid var(--line)}.msg.warn{display:block;background:#fff7ed;color:var(--warn);border:1px solid #fed7aa}
 .badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;background:var(--accent2);color:var(--accent);font-weight:700}.project-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.hidden{display:none}.spinner{display:inline-block;width:14px;height:14px;border:2px solid #ddd;border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:-2px}@keyframes spin{to{transform:rotate(360deg)}}
-.debug{font-size:12px;color:var(--muted);margin-top:10px;border-top:1px solid var(--line);padding-top:8px}.debug code{font-family:Consolas,monospace;color:#333}.topline{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.pill{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:5px 8px;background:#fafafa;color:var(--muted)}
+.debug{font-size:12px;color:var(--muted);margin-top:10px;border-top:1px solid var(--line);padding-top:8px}.debug code{font-family:Consolas,monospace;color:#333}
 @media(max-width:850px){.grid,.row{grid-template-columns:1fr}.wrap{margin-top:12px}}
-
-.btn:disabled{opacity:.65;cursor:not-allowed;filter:grayscale(.15)}
-.btn.loading{position:relative}
-.btn.loading::after{content:' ';display:inline-block;width:13px;height:13px;margin-left:8px;border:2px solid rgba(255,255,255,.55);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px}
-@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -44,7 +39,7 @@ const API_URL='https://script.google.com/macros/s/AKfycbyyxwT0JqzDOVpNP3Aj67aaqu
 const VENDEDORES=['Claudia Rodriguez','Alejandro Gurrea','Paola Alvarez','Daniel Dulor','Nestor Lombardini','Manuel Sosa'];
 const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const DOWS=['Do','Lu','Ma','Mi','Ju','Vi','Sa'];
-const state={tab:'nueva',proyectos:[],year:new Date().getFullYear(),month:new Date().getMonth(),date:null,slot:null,monthCache:{},monthLoading:{},requestId:0};
+const state={tab:'nueva',proyectos:[],year:new Date().getFullYear(),month:new Date().getMonth(),date:null,slot:null,monthCache:{},loadingMonth:false,requestId:0};
 
 function tick(){const d=new Date();document.getElementById('clock').textContent=d.toLocaleDateString('es-AR',{day:'numeric',month:'short',year:'numeric'})+' · '+d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});}tick();setInterval(tick,15000);
 function enc(obj){return encodeURIComponent(JSON.stringify(obj||{}));}
@@ -54,139 +49,38 @@ async function apiPlain(params){params._ts=Date.now();return fetchJson(API_URL+'
 function arrFrom(res,keys){if(Array.isArray(res))return res;for(const k of keys){if(res&&Array.isArray(res[k]))return res[k];}return[];}
 function fmtDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function human(s){const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'});}
+function minToHora(m){return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');}
+function horaToMin(h){const m=String(h||'').match(/^(\d{1,2}):(\d{2})/);if(!m)return NaN;return Number(m[1])*60+Number(m[2]);}
 function normalizarEstado(v){return String(v||'').trim();}
 function normalizarProyecto(p){return {id:p.id||p.idProyecto||'',estado:p.estado||p.estadoProyecto||'',clienteNombre:p.clienteNombre||'',clienteTelefono:p.clienteTelefono||'',clienteDireccion:p.clienteDireccion||'',descripcionRelevamiento:p.descripcionRelevamiento||'',nroFactura:p.nroFactura||'',m2:p.m2Relevados||p.m2||'',hsEst:p.horasEstimadasInstalacion||p.hsEst||'',observaciones:p.observacionesRelevamiento||p.observaciones||'',fechaRelevamiento:p.fechaRelevamiento||'',fechaInstalacion:p.fechaInstalacion||''};}
-function monthKey(y,m){return y+'-'+m;}
-function currentMonthKey(){return monthKey(state.year,state.month);}
-function diaData(fecha){const c=state.monthCache[currentMonthKey()];return c&&c.dias?c.dias[fecha]:null;}
-function isPastOrSunday(date){const today=new Date();const today0=new Date(today.getFullYear(),today.getMonth(),today.getDate());return date<today0||date.getDay()===0;}
-
-async function cargarProyectos(){try{const r=await apiPlain({accion:'getProyectosVendedor'});state.proyectos=arrFrom(r,['proyectos','data','resultado','items']).map(normalizarProyecto);}catch(e){console.error(e);state.proyectos=[];}actualizarBadges();}
-function actualizarBadges(){const badge=document.getElementById('badgePresupuesto');if(badge)badge.textContent='('+state.proyectos.filter(p=>p.estado==='Presupuesto pendiente').length+')';}
-
-async function cargarDisponibilidadMes(year,month){
-  const key=monthKey(year,month);
-  if(state.monthCache[key]) return state.monthCache[key];
-  if(state.monthLoading[key]) return state.monthLoading[key];
-  state.monthLoading[key]=apiPlain({accion:'disponibilidadMes',anio:year,mes:month,tipoBloque:'Relevamiento'})
-    .then(res=>{
-      if(!res||!res.ok) throw new Error((res&&res.error)||'No se pudo cargar disponibilidad mensual');
-      state.monthCache[key]=res;
-      delete state.monthLoading[key];
-      return res;
-    })
-    .catch(err=>{delete state.monthLoading[key];throw err;});
-  return state.monthLoading[key];
-}
-
-async function init(){renderNueva();await Promise.allSettled([cargarProyectos(), cargarDisponibilidadMes(state.year,state.month)]);if(state.tab==='nueva')renderNueva();}
-function showTab(tab){state.tab=tab;document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));if(tab==='nueva')renderNueva();else if(tab==='presupuesto')renderPresupuesto();else renderActivos();}
-
-function renderNueva(){
-  const cache=state.monthCache[currentMonthKey()];
-  document.getElementById('app').innerHTML=`<div class="grid"><div class="card"><div class="calendar-head"><button class="btn secondary" onclick="moveMonth(-1)">←</button><b>${MESES[state.month]} ${state.year}</b><button class="btn secondary" onclick="moveMonth(1)">→</button></div><div class="cal" id="cal"></div><div id="monthMsg" class="small" style="margin-top:10px"></div></div><div><div class="card"><div class="topline"><div><h2 class="title">Nueva solicitud de relevamiento</h2><p class="sub">Elegí fecha y hora pactada con el cliente. La disponibilidad se carga una vez por mes desde la agenda real.</p></div>${cache?`<span class="pill">Agenda cargada · ${cache.elapsedMs||0} ms · cache ${cache.cache||'—'}</span>`:''}</div><div id="slotsArea">${cache?'Seleccioná un día.':'<div class="msg info"><span class="spinner"></span>Cargando disponibilidad mensual real...</div>'}</div></div><div id="formArea"></div></div></div>`;
-  drawCalendar();
-  if(!cache){cargarDisponibilidadMes(state.year,state.month).then(()=>{if(state.tab==='nueva')renderNueva();}).catch(e=>{document.getElementById('slotsArea').innerHTML='<div class="msg show err">No se pudo cargar disponibilidad real. No se habilitan horarios. '+e.message+'</div>';drawCalendar();});}
-}
-
-function drawCalendar(){
-  const cal=document.getElementById('cal');if(!cal)return;cal.innerHTML='';DOWS.forEach(d=>cal.innerHTML+=`<div class="dow">${d}</div>`);
-  const first=new Date(state.year,state.month,1).getDay();const days=new Date(state.year,state.month+1,0).getDate();for(let i=0;i<first;i++)cal.innerHTML+='<div class="day empty"></div>';
-  const cache=state.monthCache[currentMonthKey()];
-  for(let d=1;d<=days;d++){
-    const dt=new Date(state.year,state.month,d);const fecha=fmtDate(dt);const past=isPastOrSunday(dt);const dd=cache&&cache.dias?cache.dias[fecha]:null;
-    const hasBlock=!!(dd&&dd.bloquesProgramados&&dd.bloquesProgramados.length);const hasSlots=!!(dd&&dd.slots&&dd.slots.length);
-    const disabled=past||!cache;
-    cal.innerHTML+=`<div class="day ${past?'past':''} ${!cache?'disabled':''} ${state.date===fecha?'selected':''} ${hasBlock?'has-block':''} ${hasSlots?'has-slots':''}" ${disabled?'':'onclick="selectDate(\''+fecha+'\')"'}>${d}</div>`;
-  }
-  const mm=document.getElementById('monthMsg');if(mm)mm.textContent=cache?'Disponibilidad del mes lista. Cambio de día instantáneo.':'Esperando respuesta del servidor...';
-}
-
-async function moveMonth(n){
-  state.month+=n;if(state.month<0){state.month=11;state.year--;}if(state.month>11){state.month=0;state.year++;}
-  state.date=null;state.slot=null;renderNueva();
-}
-
-function selectDate(fecha){
-  state.date=fecha;state.slot=null;drawCalendar();document.getElementById('formArea').innerHTML='';
-  const dd=diaData(fecha);
-  if(!dd){document.getElementById('slotsArea').innerHTML='<div class="msg show err">La disponibilidad de este día no está cargada. Recargá el mes.</div>';return;}
-  renderSlots(fecha,dd.slots||[],dd.bloquesProgramados||[]);
-}
-
-function renderSlots(fecha,slots,bloques){
-  let debug='';
-  if(bloques.length){debug='<div class="debug"><b>Bloques programados detectados:</b><br>'+bloques.map(b=>`<code>${b.tipoBloque} ${b.horaInicioBloque}-${b.horaFinBloque}</code>`).join('<br>')+'</div>';}else{debug='<div class="debug">Sin bloques programados detectados para este día.</div>';}
-  document.getElementById('slotsArea').innerHTML=slots.length?`<p class="sub">Horarios disponibles para ${human(fecha)}</p><div class="slots">${slots.map((s,i)=>`<button class="slot" id="slot${i}" title="Bloquea ${s.horaInicioBloque} a ${s.horaFinBloque}" onclick='selectSlot(${JSON.stringify(s)})'>${s.horaPactadaCliente||s.hora}</button>`).join('')}</div>${debug}`:`<div class="msg show err">No hay horarios disponibles para esta fecha.</div>${debug}`;
-}
-
-function selectSlot(slot){state.slot=slot;document.querySelectorAll('.slot').forEach(x=>x.classList.remove('selected'));[...document.querySelectorAll('.slot')].find(x=>x.textContent===(slot.horaPactadaCliente||slot.hora))?.classList.add('selected');renderFormNueva();}
-function renderFormNueva(){document.getElementById('formArea').innerHTML=`<div class="card"><h3 class="title">Datos del cliente</h3><p class="sub">Turno: ${human(state.date)} a las ${state.slot.horaPactadaCliente||state.slot.hora}. Bloque real: ${state.slot.horaInicioBloque} a ${state.slot.horaFinBloque}.</p><div id="msgNueva" class="msg"></div><div class="row"><div class="field"><label>Vendedor</label><select id="vendedor">${VENDEDORES.map(v=>`<option>${v}</option>`).join('')}</select></div><div class="field"><label>Teléfono cliente</label><input id="telefono" placeholder="3815551234" /></div></div><div class="row"><div class="field"><label>Cliente</label><input id="cliente" /></div><div class="field"><label>Dirección</label><input id="direccion" /></div></div><div class="row"><div class="field"><label>¿Hay presupuesto preliminar?</label><select id="hayPresup" onchange="togglePresup()"><option>No</option><option>Sí</option></select></div><div class="field hidden" id="nroPresupWrap"><label>Nº presupuesto preliminar</label><input id="nroPresup" /></div></div><div class="field"><label>Descripción del relevamiento</label><textarea id="descripcion" placeholder="Guía para el instalador"></textarea></div><button class="btn" id="btnNueva" onclick="guardarProyecto()">Reservar turno de relevamiento</button></div>`;}
+function normalizarBloque(b){return {idBloque:String(b.idBloque||''),idProyecto:String(b.idProyecto||''),tipoBloque:String(b.tipoBloque||''),fecha:String(b.fecha||'').slice(0,10),horaPactadaCliente:String(b.horaPactadaCliente||''),horaInicioBloque:String(b.horaInicioBloque||''),horaFinTrabajoCliente:String(b.horaFinTrabajoCliente||''),horaFinBloque:String(b.horaFinBloque||''),duracionTrabajoMin:Number(b.duracionTrabajoMin||0),estadoBloque:normalizarEstado(b.estadoBloque)};}
+function jornada(fecha){const d=new Date(fecha+'T12:00:00');const dow=d.getDay();if(dow===0)return null;if(dow===6)return{minPactable:570,maxFinBloque:720};return{minPactable:510,maxFinBloque:990};}
+function bloqueRelevamiento(hora){const pactada=horaToMin(hora);return{horaPactadaCliente:minToHora(pactada),inicio:pactada-30,finTrabajo:pactada+30,fin:pactada+60,horaInicioBloque:minToHora(pactada-30),horaFinTrabajoCliente:minToHora(pactada+30),horaFinBloque:minToHora(pactada+60)};}
+function solapa(aInicio,aFin,bInicio,bFin){return aInicio<bFin && aFin>bInicio;}
+function bloquesProgramadosDia(fecha){const cache=state.monthCache[state.year+'-'+state.month];const lista=(cache&&cache.bloquesPorFecha&&cache.bloquesPorFecha[fecha])?cache.bloquesPorFecha[fecha]:[];return lista.filter(b=>b.estadoBloque==='Programado');}
+function calcularSlotsDesdeBloques(fecha){const j=jornada(fecha);if(!j)return[];const existentes=bloquesProgramadosDia(fecha);const slots=[];for(let m=j.minPactable;m<=j.maxFinBloque;m+=30){const b=bloqueRelevamiento(minToHora(m));if(b.inicio<0||b.fin>j.maxFinBloque)continue;const conflicto=existentes.some(x=>{const xi=horaToMin(x.horaInicioBloque);const xf=horaToMin(x.horaFinBloque);return !isNaN(xi)&&!isNaN(xf)&&solapa(b.inicio,b.fin,xi,xf);});if(!conflicto){slots.push({horaPactadaCliente:b.horaPactadaCliente,horaInicioBloque:b.horaInicioBloque,horaFinTrabajoCliente:b.horaFinTrabajoCliente,horaFinBloque:b.horaFinBloque});}}return slots;}
+async function cargarProyectos(){try{const r=await apiPlain({accion:'getProyectosVendedor'});state.proyectos=arrFrom(r,['proyectos','data','resultado','items']).map(normalizarProyecto);}catch(e){console.error(e);state.proyectos=[];}const badge=document.getElementById('badgePresupuesto');if(badge)badge.textContent='('+state.proyectos.filter(p=>p.estado==='Presupuesto pendiente').length+')';}
+async function cargarBloquesMes(year,month){const key=year+'-'+month;if(state.monthCache[key]&&!state.monthCache[key].stale)return state.monthCache[key];state.loadingMonth=true;const r=await apiPlain({accion:'bloques',anio:year,mes:month});if(r&&r.ok===false)throw new Error(r.error||'No se pudo leer agenda');const raw=r.bloques||{};const bloquesPorFecha={};Object.keys(raw).forEach(fecha=>{bloquesPorFecha[fecha]=arrFrom(raw[fecha],['x']).map(normalizarBloque);});const cache={bloquesPorFecha,loadedAt:Date.now(),stale:false};state.monthCache[key]=cache;state.loadingMonth=false;return cache;}
+async function revalidarSlotServidor(fecha,hora){const r=await apiPlain({accion:'slotsDia',fecha:fecha,tipoBloque:'Relevamiento'});if(r&&r.ok===false)throw new Error(r.error||'No se pudo revalidar agenda');const slots=arrFrom(r,['slots']).map(s=>String(s.horaPactadaCliente||s.inicio||s.hora||''));return slots.includes(hora);}
+function showTab(tab){state.tab=tab;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));render();}
+async function init(){await cargarProyectos();render();precargarMesActual();}init().catch(e=>document.getElementById('app').innerHTML='<div class="msg show err">Error inicial: '+e.message+'</div>');
+async function precargarMesActual(){try{await cargarBloquesMes(state.year,state.month);if(state.tab==='nueva')drawCalendar();}catch(e){console.error(e);}}
+function render(){if(state.tab==='nueva')renderNueva();else if(state.tab==='presupuesto')renderPresupuesto();else renderActivos();}
+function renderNueva(){document.getElementById('app').innerHTML=`<div class="grid"><div class="card"><div class="calendar-head"><button class="btn secondary" onclick="moveMonth(-1)">←</button><b>${MESES[state.month]} ${state.year}</b><button class="btn secondary" onclick="moveMonth(1)">→</button></div><div class="cal" id="cal"></div><div id="monthMsg" class="small" style="margin-top:10px"></div></div><div><div class="card"><h2 class="title">Nueva solicitud de relevamiento</h2><p class="sub">Elegí fecha y hora pactada con el cliente. Los horarios se calculan desde la agenda real cargada en Sheets.</p><div id="slotsArea">Seleccioná un día.</div></div><div id="formArea"></div></div></div>`;drawCalendar();}
+function drawCalendar(){const cal=document.getElementById('cal');if(!cal)return;cal.innerHTML='';DOWS.forEach(d=>cal.innerHTML+=`<div class="dow">${d}</div>`);const first=new Date(state.year,state.month,1).getDay();const days=new Date(state.year,state.month+1,0).getDate();for(let i=0;i<first;i++)cal.innerHTML+='<div class="day empty"></div>';const today=new Date();const today0=new Date(today.getFullYear(),today.getMonth(),today.getDate());const cache=state.monthCache[state.year+'-'+state.month];for(let d=1;d<=days;d++){const dt=new Date(state.year,state.month,d);const date=fmtDate(dt);const past=dt<today0||dt.getDay()===0;const hasBlock=!!(cache&&cache.bloquesPorFecha&&cache.bloquesPorFecha[date]&&cache.bloquesPorFecha[date].some(b=>b.estadoBloque==='Programado'));cal.innerHTML+=`<div class="day ${past?'past':''} ${state.date===date?'selected':''} ${hasBlock?'has-block':''}" ${past?'':'onclick="selectDate(\''+date+'\')"'}>${d}</div>`;}const mm=document.getElementById('monthMsg');if(mm)mm.textContent=cache?'Agenda del mes cargada: '+new Date(cache.loadedAt).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}):'Cargando agenda del mes...';}
+async function moveMonth(n){state.month+=n;if(state.month<0){state.month=11;state.year--}if(state.month>11){state.month=0;state.year++}state.date=null;state.slot=null;renderNueva();try{document.getElementById('slotsArea').innerHTML='<div class="msg info"><span class="spinner"></span>Cargando agenda real del mes...</div>';await cargarBloquesMes(state.year,state.month);drawCalendar();document.getElementById('slotsArea').innerHTML='Seleccioná un día.';}catch(e){document.getElementById('slotsArea').innerHTML='<div class="msg show err">No se pudo cargar la agenda real. '+e.message+'</div>';}}
+async function selectDate(date){state.date=date;state.slot=null;const req=++state.requestId;drawCalendar();document.getElementById('formArea').innerHTML='';document.getElementById('slotsArea').innerHTML='<div class="msg info"><span class="spinner"></span>Verificando agenda real...</div>';try{await cargarBloquesMes(state.year,state.month);if(req!==state.requestId)return;const slots=calcularSlotsDesdeBloques(date);const bloques=bloquesProgramadosDia(date);renderSlots(date,slots,bloques);}catch(e){if(req!==state.requestId)return;document.getElementById('slotsArea').innerHTML='<div class="msg show err">No se pudo leer la agenda real. No se habilitan horarios para evitar superposiciones. '+e.message+'</div>';}}
+function renderSlots(fecha,slots,bloques){let debug='';if(bloques.length){debug='<div class="debug"><b>Bloques programados detectados:</b><br>'+bloques.map(b=>`<code>${b.tipoBloque} ${b.horaInicioBloque}-${b.horaFinBloque}</code>`).join('<br>')+'</div>';}else debug='<div class="debug">Sin bloques programados detectados para este día.</div>';document.getElementById('slotsArea').innerHTML=slots.length?`<p class="sub">Horarios disponibles para ${human(fecha)}</p><div class="slots">${slots.map((s,i)=>`<button class="slot" id="slot${i}" title="Bloquea ${s.horaInicioBloque} a ${s.horaFinBloque}" onclick='selectSlot(${JSON.stringify(s)})'>${s.horaPactadaCliente}</button>`).join('')}</div>${debug}`:`<div class="msg show err">No hay horarios disponibles para esta fecha.</div>${debug}`;}
+function selectSlot(slot){state.slot=slot;document.querySelectorAll('.slot').forEach(x=>x.classList.remove('selected'));[...document.querySelectorAll('.slot')].find(x=>x.textContent===slot.horaPactadaCliente)?.classList.add('selected');renderFormNueva();}
+function renderFormNueva(){document.getElementById('formArea').innerHTML=`<div class="card"><h3 class="title">Datos del cliente</h3><p class="sub">Turno: ${human(state.date)} a las ${state.slot.horaPactadaCliente}. Bloque real: ${state.slot.horaInicioBloque} a ${state.slot.horaFinBloque}.</p><div id="msgNueva" class="msg"></div><div class="row"><div class="field"><label>Vendedor</label><select id="vendedor">${VENDEDORES.map(v=>`<option>${v}</option>`).join('')}</select></div><div class="field"><label>Teléfono cliente</label><input id="telefono" placeholder="3815551234" /></div></div><div class="row"><div class="field"><label>Cliente</label><input id="cliente" /></div><div class="field"><label>Dirección</label><input id="direccion" /></div></div><div class="row"><div class="field"><label>¿Hay presupuesto preliminar?</label><select id="hayPresup" onchange="togglePresup()"><option>No</option><option>Sí</option></select></div><div class="field hidden" id="nroPresupWrap"><label>Nº presupuesto preliminar</label><input id="nroPresup" /></div></div><div class="field"><label>Descripción del relevamiento</label><textarea id="descripcion" placeholder="Guía para el instalador"></textarea></div><button class="btn" id="btnNueva" onclick="guardarProyecto()">Reservar turno de relevamiento</button></div>`;}
 function togglePresup(){document.getElementById('nroPresupWrap').classList.toggle('hidden',document.getElementById('hayPresup').value!=='Sí');}
 function setLoading(btn,on,text){btn.disabled=on;if(text)btn.textContent=text;}
 function msg(id,tipo,text){const el=document.getElementById(id);if(!el)return;el.className='msg show '+tipo;el.textContent=text;}
-
-async function revalidarSlotServidor(fecha,hora){
-  const r=await apiPlain({accion:'slotsDia',fecha:fecha,tipoBloque:'Relevamiento'});
-  if(!r||!r.ok) throw new Error((r&&r.error)||'No se pudo revalidar agenda');
-  return arrFrom(r,['slots']).some(s=>(s.horaPactadaCliente||s.hora)===hora);
-}
-
-async function guardarProyecto(){
-  const btn=document.getElementById('btnNueva');
-  const datos={vendedor:document.getElementById('vendedor').value,clienteNombre:document.getElementById('cliente').value.trim(),clienteTelefono:document.getElementById('telefono').value.trim(),clienteDireccion:document.getElementById('direccion').value.trim(),hayPresupuestoPreliminar:document.getElementById('hayPresup').value,nroPresupuestoPreliminar:(document.getElementById('nroPresup')||{}).value||'',descripcionRelevamiento:document.getElementById('descripcion').value.trim(),fechaRelevamiento:state.date,horaRelevamiento:state.slot&&(state.slot.horaPactadaCliente||state.slot.hora)};
-  if(!state.slot){msg('msgNueva','err','Seleccioná un horario disponible.');return;}
-  if(!datos.clienteNombre||!datos.clienteTelefono||!datos.clienteDireccion||!datos.descripcionRelevamiento||(datos.hayPresupuestoPreliminar==='Sí'&&!datos.nroPresupuestoPreliminar)){msg('msgNueva','err','Completá todos los campos obligatorios.');return;}
-  setLoading(btn,true,'Revalidando agenda...');
-  try{
-    const disponible=await revalidarSlotServidor(datos.fechaRelevamiento,datos.horaRelevamiento);
-    if(!disponible){msg('msgNueva','err','Ese horario ya fue tomado. Recargando disponibilidad mensual...');state.monthCache[currentMonthKey()]=null;await cargarDisponibilidadMes(state.year,state.month);selectDate(state.date);setLoading(btn,false,'Reservar turno de relevamiento');return;}
-    setLoading(btn,true,'Guardando...');
-    const r=await api('registrarProyecto',datos);
-    setLoading(btn,false,'Reservar turno de relevamiento');
-    if(r.ok){msg('msgNueva','ok','Proyecto creado: '+r.idProyecto);state.monthCache[currentMonthKey()]=null;await Promise.allSettled([cargarProyectos(),cargarDisponibilidadMes(state.year,state.month)]);setTimeout(()=>{state.date=null;state.slot=null;renderNueva();},700);}else{msg('msgNueva','err',r.error||'Error desconocido');}
-  }catch(e){setLoading(btn,false,'Reservar turno de relevamiento');msg('msgNueva','err','No se pudo guardar. '+e.message);}
-}
-
+async function guardarProyecto(){const btn=document.getElementById('btnNueva');const datos={vendedor:document.getElementById('vendedor').value,clienteNombre:document.getElementById('cliente').value.trim(),clienteTelefono:document.getElementById('telefono').value.trim(),clienteDireccion:document.getElementById('direccion').value.trim(),hayPresupuestoPreliminar:document.getElementById('hayPresup').value,nroPresupuestoPreliminar:(document.getElementById('nroPresup')||{}).value||'',descripcionRelevamiento:document.getElementById('descripcion').value.trim(),fechaRelevamiento:state.date,horaRelevamiento:state.slot&&state.slot.horaPactadaCliente};if(!state.slot){msg('msgNueva','err','Seleccioná un horario disponible.');return}if(!datos.clienteNombre||!datos.clienteTelefono||!datos.clienteDireccion||!datos.descripcionRelevamiento||(datos.hayPresupuestoPreliminar==='Sí'&&!datos.nroPresupuestoPreliminar)){msg('msgNueva','err','Completá todos los campos obligatorios.');return}setLoading(btn,true,'Revalidando agenda...');try{const sigue=await revalidarSlotServidor(datos.fechaRelevamiento,datos.horaRelevamiento);if(!sigue){msg('msgNueva','err','Ese horario ya fue tomado. Se recarga la agenda.');state.monthCache[state.year+'-'+state.month]=null;await selectDate(state.date);setLoading(btn,false,'Reservar turno de relevamiento');return;}setLoading(btn,true,'Guardando...');const r=await api('registrarProyecto',datos);setLoading(btn,false,'Reservar turno de relevamiento');if(r.ok){msg('msgNueva','ok','Proyecto creado: '+r.idProyecto);state.monthCache[state.year+'-'+state.month]=null;await cargarProyectos();setTimeout(async()=>{await cargarBloquesMes(state.year,state.month);state.date=null;state.slot=null;renderNueva();},700);}else msg('msgNueva','err',r.error||'Error desconocido');}catch(e){setLoading(btn,false,'Reservar turno de relevamiento');msg('msgNueva','err','No se pudo guardar. '+e.message);}}
 function renderPresupuesto(){const ps=state.proyectos.filter(p=>p.estado==='Presupuesto pendiente');document.getElementById('app').innerHTML=ps.length?ps.map(cardPresupuesto).join(''):'<div class="card"><p>No hay presupuestos pendientes.</p></div>';}
-function cardPresupuesto(p){return `<div class="card"><div class="project-head"><div><b>${p.id}</b><h3>${p.clienteNombre}</h3><div class="small">${p.clienteDireccion}</div></div><span class="badge">${p.estado}</span></div><hr><p><b>Descripción:</b> ${p.descripcionRelevamiento||'—'}</p><p><b>Relevamiento:</b> ${p.m2||'—'} m² · ${p.hsEst||'—'} hs</p><p><b>Observaciones:</b> ${p.observaciones||'—'}</p><div id="msg-${p.id}" class="msg"></div><div class="row"><div class="field"><label>Nº factura</label><input id="fac-${p.id}" placeholder="A-0003-00012345" /></div><div style="align-self:end"><button class="btn" id="btn-conf-${p.id}" onclick="confirmar('${p.id}')">Presupuesto confirmado</button></div></div></div>`;}
-function setBtnLoading(btn,text){
-  if(!btn) return;
-  btn.dataset.originalText=btn.dataset.originalText||btn.textContent;
-  btn.disabled=true;
-  btn.classList.add('loading');
-  btn.textContent=text||'Procesando...';
-}
-function resetBtn(btn,text){
-  if(!btn) return;
-  btn.disabled=false;
-  btn.classList.remove('loading');
-  btn.textContent=text||btn.dataset.originalText||'Aceptar';
-}
-
-async function confirmar(id){
-  const nro=document.getElementById('fac-'+id).value.trim();
-  const btn=document.getElementById('btn-conf-'+id);
-  if(!nro){msg('msg-'+id,'err','Cargá el número de factura.');return;}
-  setBtnLoading(btn,'Confirmando...');
-  msg('msg-'+id,'ok','Procesando confirmación del presupuesto...');
-  try{
-    const r=await api('confirmarPresupuesto',{idProyecto:id,nroFactura:nro});
-    if(!r.ok) throw new Error(r.error||'Error al confirmar presupuesto');
-    msg('msg-'+id,'ok','Presupuesto confirmado. Actualizando panel...');
-    // Actualización optimista: se quita la tarjeta de la lista antes de recargar desde Sheets.
-    state.proyectos=state.proyectos.map(p=>p.id===id?{...p,estado:'Instalación confirmada',estadoProyecto:'Instalación confirmada',nroFactura:nro}:p);
-    actualizarBadges();
-    renderPresupuesto();
-    cargarProyectos().then(()=>{ if(state.tab==='presupuesto') renderPresupuesto(); });
-  }catch(e){
-    msg('msg-'+id,'err',e.message||'Error al confirmar presupuesto');
-    resetBtn(btn,'Presupuesto confirmado');
-  }
-}
+function cardPresupuesto(p){return `<div class="card"><div class="project-head"><div><b>${p.id}</b><h3>${p.clienteNombre}</h3><div class="small">${p.clienteDireccion}</div></div><span class="badge">${p.estado}</span></div><hr><p><b>Descripción:</b> ${p.descripcionRelevamiento||'—'}</p><p><b>Relevamiento:</b> ${p.m2||'—'} m² · ${p.hsEst||'—'} hs</p><p><b>Observaciones:</b> ${p.observaciones||'—'}</p><div id="msg-${p.id}" class="msg"></div><div class="row"><div class="field"><label>Nº factura</label><input id="fac-${p.id}" placeholder="A-0003-00012345" /></div><div style="align-self:end"><button class="btn" onclick="confirmar('${p.id}')">Presupuesto confirmado</button></div></div></div>`;}
+async function confirmar(id){const nro=document.getElementById('fac-'+id).value.trim();if(!nro){msg('msg-'+id,'err','Cargá el número de factura.');return}const r=await api('confirmarPresupuesto',{idProyecto:id,nroFactura:nro});if(r.ok){msg('msg-'+id,'ok','Presupuesto confirmado.');await cargarProyectos();setTimeout(renderPresupuesto,800)}else msg('msg-'+id,'err',r.error||'Error');}
 function renderActivos(){const ps=state.proyectos.filter(p=>p.estado!=='Cerrado'&&p.estado!=='Presupuesto rechazado');document.getElementById('app').innerHTML=ps.length?ps.map(p=>`<div class="card"><div class="project-head"><div><b>${p.id}</b><h3>${p.clienteNombre}</h3><div class="small">${p.clienteDireccion}</div></div><span class="badge">${p.estado}</span></div><p>${p.descripcionRelevamiento||''}</p><p class="small">Factura: ${p.nroFactura||'—'} · Relev: ${p.fechaRelevamiento||'—'} · Instalación: ${p.fechaInstalacion||'—'}</p></div>`).join(''):'<div class="card"><p>No hay proyectos activos.</p></div>';}
-
-init();
 </script>
 </body>
 </html>
