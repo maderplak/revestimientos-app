@@ -46,6 +46,7 @@ body{margin:0;background:#f3f0e8;color:var(--text);font-family:system-ui,-apple-
 </div>
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbyyxwT0JqzDOVpNP3Aj67aaquvqSHqCP96_pOQxOTdkA8xonGcnGE5-LSRuJiiTBlMc/exec';
+const CLIENTE_CONFORME_URL = 'https://maderplak.github.io/revestimientos-app/interfaz_cliente.html';
 const state = { tab:'hoy', proyectos:[], tareasHoy:[], alertas:[], bloquesCache:{}, bloquesPromises:{}, selectedSlots:{}, warmStarted:false };
 
 // La instalación usa cálculo local de slots basado en bloques reales de agenda.
@@ -420,7 +421,48 @@ async function finalizarInstalacionUI(id){
   }
 }
 function renderConforme(){ const items=sortByAction(state.proyectos.filter(p=>p.estado===EST.INST),'conforme'); renderCards(items,p=>cardBase(p,conformeBody(p))); }
-async function enviarConformeUI(id){ try{ const res=await apiAction('enviarConforme',{idProyecto:id}); if(!res.ok) throw new Error(res.error||'No se pudo enviar conforme'); show('Conforme marcado como enviado.','ok'); if(res.whatsapp && res.whatsapp.url) window.open(res.whatsapp.url,'_blank'); await loadAll(); }catch(e){show(e.message,'err')} }
+function obtenerTelefonoWhatsappProyecto(id){
+  const p=state.proyectos.find(x=>String(x.id)===String(id));
+  return String((p && (p.clienteWhatsapp || p.clienteTelefono)) || '').replace(/\D/g,'');
+}
+function generarUrlWhatsappConforme(idProyecto,idConforme){
+  const telefono=obtenerTelefonoWhatsappProyecto(idProyecto);
+  const link=CLIENTE_CONFORME_URL+'?idProyecto='+encodeURIComponent(idProyecto)+'&idConforme='+encodeURIComponent(idConforme);
+  const mensaje='Hola, esperamos que estés disfrutando tu instalación. Te compartimos el conforme de obra para que puedas validar el trabajo realizado: '+link+' Muchas gracias.';
+  if(!telefono) return {ok:false,link,mensaje,motivo:'El cliente no tiene teléfono/WhatsApp cargado.'};
+  return {ok:true,link,mensaje,url:'https://wa.me/'+telefono+'?text='+encodeURIComponent(mensaje)};
+}
+async function enviarConformeUI(id){
+  const btn = event && event.target ? event.target : null;
+  try{
+    if(btn){
+      btn.disabled=true;
+      btn.dataset.originalText=btn.dataset.originalText||btn.textContent;
+      btn.textContent='Generando WhatsApp...';
+      btn.classList.add('loading');
+    }
+    show('Marcando conforme como enviado y preparando WhatsApp...','info');
+    const res=await apiAction('enviarConforme',{idProyecto:id});
+    if(!res.ok) throw new Error(res.error||'No se pudo enviar conforme');
+
+    const idConforme = res.idConforme || (res.conforme && res.conforme.idConforme) || '';
+    const wa = generarUrlWhatsappConforme(id,idConforme);
+
+    if(!wa.ok) throw new Error(wa.motivo || 'No se pudo generar WhatsApp.');
+
+    show('Conforme marcado como enviado. Abriendo WhatsApp...','ok');
+    window.open(wa.url,'_blank');
+
+    await loadAll();
+  }catch(e){
+    show(e.message,'err');
+    if(btn){
+      btn.disabled=false;
+      btn.classList.remove('loading');
+      btn.textContent=btn.dataset.originalText||'Generar WhatsApp y marcar enviado';
+    }
+  }
+}
 nowClock(); setInterval(nowClock,30000); loadAll();
 </script>
 </body>
