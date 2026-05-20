@@ -78,8 +78,81 @@ function setLoading(btn,on,text){btn.disabled=on;if(text)btn.textContent=text;}
 function msg(id,tipo,text){const el=document.getElementById(id);if(!el)return;el.className='msg show '+tipo;el.textContent=text;}
 async function guardarProyecto(){const btn=document.getElementById('btnNueva');const datos={vendedor:document.getElementById('vendedor').value,clienteNombre:document.getElementById('cliente').value.trim(),clienteTelefono:document.getElementById('telefono').value.trim(),clienteDireccion:document.getElementById('direccion').value.trim(),hayPresupuestoPreliminar:document.getElementById('hayPresup').value,nroPresupuestoPreliminar:(document.getElementById('nroPresup')||{}).value||'',descripcionRelevamiento:document.getElementById('descripcion').value.trim(),fechaRelevamiento:state.date,horaRelevamiento:state.slot&&state.slot.horaPactadaCliente};if(!state.slot){msg('msgNueva','err','Seleccioná un horario disponible.');return}if(!datos.clienteNombre||!datos.clienteTelefono||!datos.clienteDireccion||!datos.descripcionRelevamiento||(datos.hayPresupuestoPreliminar==='Sí'&&!datos.nroPresupuestoPreliminar)){msg('msgNueva','err','Completá todos los campos obligatorios.');return}setLoading(btn,true,'Revalidando agenda...');try{const sigue=await revalidarSlotServidor(datos.fechaRelevamiento,datos.horaRelevamiento);if(!sigue){msg('msgNueva','err','Ese horario ya fue tomado. Se recarga la agenda.');state.monthCache[state.year+'-'+state.month]=null;await selectDate(state.date);setLoading(btn,false,'Reservar turno de relevamiento');return;}setLoading(btn,true,'Guardando...');const r=await api('registrarProyecto',datos);setLoading(btn,false,'Reservar turno de relevamiento');if(r.ok){msg('msgNueva','ok','Proyecto creado: '+r.idProyecto);state.monthCache[state.year+'-'+state.month]=null;await cargarProyectos();setTimeout(async()=>{await cargarBloquesMes(state.year,state.month);state.date=null;state.slot=null;renderNueva();},700);}else msg('msgNueva','err',r.error||'Error desconocido');}catch(e){setLoading(btn,false,'Reservar turno de relevamiento');msg('msgNueva','err','No se pudo guardar. '+e.message);}}
 function renderPresupuesto(){const ps=state.proyectos.filter(p=>p.estado==='Presupuesto pendiente');document.getElementById('app').innerHTML=ps.length?ps.map(cardPresupuesto).join(''):'<div class="card"><p>No hay presupuestos pendientes.</p></div>';}
-function cardPresupuesto(p){return `<div class="card"><div class="project-head"><div><b>${p.id}</b><h3>${p.clienteNombre}</h3><div class="small">${p.clienteDireccion}</div></div><span class="badge">${p.estado}</span></div><hr><p><b>Descripción:</b> ${p.descripcionRelevamiento||'—'}</p><p><b>Relevamiento:</b> ${p.m2||'—'} m² · ${p.hsEst||'—'} hs</p><p><b>Observaciones:</b> ${p.observaciones||'—'}</p><div id="msg-${p.id}" class="msg"></div><div class="row"><div class="field"><label>Nº factura</label><input id="fac-${p.id}" placeholder="A-0003-00012345" /></div><div style="align-self:end"><button class="btn" onclick="confirmar('${p.id}')">Presupuesto confirmado</button></div></div></div>`;}
-async function confirmar(id){const nro=document.getElementById('fac-'+id).value.trim();if(!nro){msg('msg-'+id,'err','Cargá el número de factura.');return}const r=await api('confirmarPresupuesto',{idProyecto:id,nroFactura:nro});if(r.ok){msg('msg-'+id,'ok','Presupuesto confirmado.');await cargarProyectos();setTimeout(renderPresupuesto,800)}else msg('msg-'+id,'err',r.error||'Error');}
+function cardPresupuesto(p){return `<div class="card" id="card-presupuesto-${p.id}"><div class="project-head"><div><b>${p.id}</b><h3>${p.clienteNombre}</h3><div class="small">${p.clienteDireccion}</div></div><span class="badge">${p.estado}</span></div><hr><p><b>Descripción:</b> ${p.descripcionRelevamiento||'—'}</p><p><b>Relevamiento:</b> ${p.m2||'—'} m² · ${p.hsEst||'—'} hs</p><p><b>Observaciones:</b> ${p.observaciones||'—'}</p><div id="msg-${p.id}" class="msg"></div><div class="row"><div class="field"><label>Nº factura</label><input id="fac-${p.id}" placeholder="A-0003-00012345" /></div><div style="align-self:end"><button class="btn" id="btn-confirmar-${p.id}" onclick="confirmar('${p.id}')">Presupuesto confirmado</button></div></div></div>`;}
+async function confirmar(id){
+  const input=document.getElementById('fac-'+id);
+  const btn=document.getElementById('btn-confirmar-'+id);
+  const nro=input ? input.value.trim() : '';
+
+  if(!nro){
+    msg('msg-'+id,'err','Cargá el número de factura.');
+    return;
+  }
+
+  const textoOriginal=btn ? btn.textContent : 'Presupuesto confirmado';
+
+  if(btn){
+    btn.disabled=true;
+    btn.textContent='Confirmando...';
+  }
+  if(input){
+    input.disabled=true;
+  }
+
+  msg('msg-'+id,'info','Confirmando presupuesto y actualizando estado...');
+
+  try{
+    const r=await api('confirmarPresupuesto',{idProyecto:id,nroFactura:nro});
+
+    if(r && r.ok){
+      msg('msg-'+id,'ok','Presupuesto confirmado. El proyecto ya pasó a instalación confirmada.');
+
+      // Actualización visual inmediata para no hacer esperar al vendedor.
+      const p=state.proyectos.find(x=>x.id===id);
+      if(p){
+        p.estado='Instalación confirmada';
+        p.nroFactura=nro;
+      }
+
+      const badge=document.getElementById('badgePresupuesto');
+      if(badge){
+        badge.textContent='('+state.proyectos.filter(p=>p.estado==='Presupuesto pendiente').length+')';
+      }
+
+      const card=document.getElementById('card-presupuesto-'+id);
+      if(card){
+        card.style.opacity='.65';
+      }
+
+      // Sincronización real con Sheets en segundo plano.
+      cargarProyectos()
+        .then(()=>setTimeout(renderPresupuesto,500))
+        .catch(err=>{
+          console.error('Error sincronizando proyectos después de confirmar:',err);
+          setTimeout(renderPresupuesto,900);
+        });
+
+    }else{
+      if(btn){
+        btn.disabled=false;
+        btn.textContent=textoOriginal;
+      }
+      if(input){
+        input.disabled=false;
+      }
+      msg('msg-'+id,'err',(r&&r.error)||'Error al confirmar presupuesto.');
+    }
+  }catch(e){
+    if(btn){
+      btn.disabled=false;
+      btn.textContent=textoOriginal;
+    }
+    if(input){
+      input.disabled=false;
+    }
+    msg('msg-'+id,'err','No se pudo confirmar. '+e.message);
+  }
+}
 function renderActivos(){const ps=state.proyectos.filter(p=>p.estado!=='Cerrado'&&p.estado!=='Presupuesto rechazado');document.getElementById('app').innerHTML=ps.length?ps.map(p=>`<div class="card"><div class="project-head"><div><b>${p.id}</b><h3>${p.clienteNombre}</h3><div class="small">${p.clienteDireccion}</div></div><span class="badge">${p.estado}</span></div><p>${p.descripcionRelevamiento||''}</p><p class="small">Factura: ${p.nroFactura||'—'} · Relev: ${p.fechaRelevamiento||'—'} · Instalación: ${p.fechaInstalacion||'—'}</p></div>`).join(''):'<div class="card"><p>No hay proyectos activos.</p></div>';}
 </script>
 </body>
