@@ -24,6 +24,11 @@ body{margin:0;background:#f3f0e8;color:var(--text);font-family:system-ui,-apple-
 .todayItem{display:flex;gap:12px;align-items:flex-start;border-top:1px solid #eee8dc;padding:12px 0}.todayItem:first-child{border-top:0}.metaLine{font-size:12px;color:#6f736d;margin-top:2px}.actionHint{background:#eef5ff;border:1px solid #c9ddff;color:#174ea6;border-radius:12px;padding:9px 11px;font-size:12px;font-weight:750;margin-bottom:12px}.todayActions{margin-top:10px}.sectionGap{height:10px}.timeBox{min-width:62px;border-radius:12px;background:#edf4ef;color:#0b5d3b;text-align:center;padding:8px 6px;font-weight:900}.small{font-size:12px;color:#6f736d}.calcBox{border:1px solid #e1d8c9;background:#fbfaf7;border-radius:14px;padding:10px 12px;margin-bottom:12px;color:#474a45;font-size:13px}.checkList{display:grid;gap:8px;margin-bottom:12px}.check{display:flex;align-items:center;gap:10px;background:#faf9f5;border:1px solid #e4ded2;border-radius:13px;padding:12px}.check input{width:22px;height:22px;accent-color:var(--brand)}.check span{font-weight:750;font-size:14px}.hidden{display:none!important}
 @media(max-width:680px){.wrap{padding:8px 8px 92px}.topbar{padding:13px 12px}.tabs{position:fixed;left:0;right:0;bottom:0;top:auto;margin:0;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid #ddd;grid-template-columns:repeat(5,1fr);box-shadow:0 -6px 20px rgba(0,0,0,.08)}.tab{border-radius:14px;font-size:10px;padding:8px 4px;min-height:48px}.tab .badge{display:block;margin:4px auto 0}.grid2{grid-template-columns:1fr}.slots{grid-template-columns:repeat(3,1fr)}.client{font-size:17px}.card{border-radius:16px}.btnRow{grid-template-columns:1fr}.clock{display:none}}
 @media(min-width:681px){.cardGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.cardGrid .card{margin-bottom:0}}
+
+.btn:disabled{opacity:.65;cursor:not-allowed;filter:grayscale(.15)}
+.btn.loading{position:relative}
+.btn.loading::after{content:' ';display:inline-block;width:15px;height:15px;margin-left:9px;border:2px solid rgba(255,255,255,.55);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -126,8 +131,8 @@ function actionTime(p,mode){
   return dateTimeValue(p.fechaCreacion||p.ultimaActualizacion,'00:00');
 }
 function proyectoPorId(id){return state.proyectos.find(p=>String(p.id)===String(id));}
-function relevamientoBody(p){return `<div class="actionHint">Podés cargar este relevamiento desde esta tarjeta.</div><div class="sectionTitle">Guía del vendedor</div><div class="desc">${esc(p.descripcionRelevamiento||'Sin descripción')}</div>${p.nroPresupuestoPreliminar?`<div class="chiprow"><span class="chip warn">Presup. preliminar ${esc(p.nroPresupuestoPreliminar)}</span></div>`:''}<hr style="border:0;border-top:1px solid #eee8dc;margin:14px 0"><div class="grid2"><div class="field"><label>m² relevados</label><input id="m2-${p.id}" inputmode="decimal" placeholder="Ej: 12,5"></div><div class="field"><label>Horas estimadas</label><input id="hs-${p.id}" type="number" min="1" step="1" placeholder="Ej: 3"></div></div><div class="field"><label>Observaciones del relevamiento</label><textarea id="obs-${p.id}" placeholder="Condiciones de pared, terminaciones, dificultad, etc."></textarea></div><button class="btn" onclick="guardarRelevamiento('${p.id}')">Guardar relevamiento</button>`;}
-function coordinarBody(p){return `<div class="sectionTitle">Datos de instalación</div><div class="calcBox"><b>${esc(p.hsEst||'—')} hs estimadas</b><br>Las horas no son editables. Vienen del relevamiento y mandan la planificación.</div><div class="field"><label>Fecha de instalación</label><input id="fecha-inst-${p.id}" type="date" min="${todayStr()}" onchange="cargarSlotsInstalacion('${p.id}')"></div><div id="slots-inst-${p.id}" class="small">Elegí una fecha para ver horarios reales disponibles.</div><div class="field"><label>Observación de coordinación</label><textarea id="coord-obs-${p.id}" placeholder="Opcional"></textarea></div><button class="btn blue" onclick="programarInstalacionUI('${p.id}')">Programar instalación</button>`;}
+function relevamientoBody(p){return `<div class="actionHint">Podés cargar este relevamiento desde esta tarjeta.</div><div class="sectionTitle">Guía del vendedor</div><div class="desc">${esc(p.descripcionRelevamiento||'Sin descripción')}</div>${p.nroPresupuestoPreliminar?`<div class="chiprow"><span class="chip warn">Presup. preliminar ${esc(p.nroPresupuestoPreliminar)}</span></div>`:''}<hr style="border:0;border-top:1px solid #eee8dc;margin:14px 0"><div class="grid2"><div class="field"><label>m² relevados</label><input id="m2-${p.id}" inputmode="decimal" placeholder="Ej: 12,5"></div><div class="field"><label>Horas estimadas</label><input id="hs-${p.id}" type="number" min="1" step="1" placeholder="Ej: 3"></div></div><div class="field"><label>Observaciones del relevamiento</label><textarea id="obs-${p.id}" placeholder="Condiciones de pared, terminaciones, dificultad, etc."></textarea></div><button id="btn-rel-${p.id}" class="btn" onclick="guardarRelevamiento('${p.id}')">Guardar relevamiento</button>`;}
+function coordinarBody(p){return `<div class="sectionTitle">Datos de instalación</div><div class="calcBox"><b>${esc(p.hsEst||'—')} hs estimadas</b><br>Las horas no son editables. Vienen del relevamiento y mandan la planificación.</div><div class="field"><label>Fecha de instalación</label><input id="fecha-inst-${p.id}" type="date" min="${todayStr()}" onchange="cargarSlotsInstalacion('${p.id}')"></div><div id="slots-inst-${p.id}" class="small">Elegí una fecha para ver horarios reales disponibles.</div><div class="field"><label>Observación de coordinación</label><textarea id="coord-obs-${p.id}" placeholder="Opcional"></textarea></div><button id="btn-prog-${p.id}" class="btn blue" onclick="programarInstalacionUI('${p.id}')">Programar instalación</button>`;}
 function calidadBody(p){return `<div class="sectionTitle">Performance</div><div class="grid2"><div class="field"><label>Fecha real</label><input id="freal-${p.id}" type="date" value="${todayStr()}"></div><div class="field"><label>m² instalados</label><input id="m2inst-${p.id}" inputmode="decimal" placeholder="Ej: ${esc(p.m2||'12,5')}"></div><div class="field"><label>Hora llegada</label><input id="hini-${p.id}" type="time" value="${esc(fmtTime(p.horaInstalacion)||'')}"></div><div class="field"><label>Hora cierre check</label><input id="hfin-${p.id}" type="time"></div></div><div id="desvioBox-${p.id}" class="calcBox">Si el desvío supera 20 minutos, el sistema exigirá motivo.</div><div class="field"><label>Motivo de desvío si aplica</label><select id="motivo-${p.id}"><option value="">Sin desvío significativo</option>${MOTIVOS.map(m=>`<option>${esc(m)}</option>`).join('')}</select></div><div class="field"><label>Observación performance</label><textarea id="operf-${p.id}" placeholder="Obligatoria si motivo = Otro"></textarea></div><div class="sectionTitle">Checklist calidad</div><div class="checkList">${['controlInstalacionOK|Revestimiento instalado correctamente','controlTerminacionesOK|Terminaciones revisadas','controlLimpiezaOK|Limpieza básica realizada','controlRetiroMaterialesOK|Materiales/herramientas retirados','controlClienteInformadoOK|Cliente informado'].map(x=>{const [idc,txt]=x.split('|'); return `<label class="check"><input id="${idc}-${p.id}" type="checkbox" checked><span>${txt}</span></label>`}).join('')}</div><div class="field"><label>¿Hubo desvío de calidad?</label><select id="desvcal-${p.id}" onchange="toggleDesvCal('${p.id}')"><option>No</option><option>Sí</option></select></div><div id="desvcalbox-${p.id}" class="hidden"><div class="field"><label>Detalle del desvío</label><textarea id="detcal-${p.id}"></textarea></div><div class="field"><label>Acción correctiva realizada</label><textarea id="acccal-${p.id}"></textarea></div></div><div class="field"><label>Observaciones finales</label><textarea id="ofinal-${p.id}" placeholder="Resultado final del servicio"></textarea></div><button id="btn-fin-${p.id}" class="btn" onclick="finalizarInstalacionUI('${p.id}')">Finalizar instalación</button>`;}
 function conformeBody(p){return `<div class="sectionTitle">Conforme de obra</div><div class="calcBox">El backend valida si ya corresponde enviar el conforme según la fecha disponible. Si aún no corresponde, informará la fecha.</div><button class="btn" onclick="enviarConformeUI('${p.id}')">Generar WhatsApp y marcar enviado</button>`;}
 function accionHoyBody(t,p){
@@ -156,7 +161,44 @@ function renderHoy(){
   $('app').innerHTML = html || `<div class="empty">No hay tareas ni alertas para hoy.</div>`;
 }
 function renderRelevamiento(){ const items=sortByAction(state.proyectos.filter(p=>p.estado===EST.PEND),'relevamiento'); renderCards(items,p=>cardBase(p,relevamientoBody(p))); }
-async function guardarRelevamiento(id){ const m2=$(`m2-${id}`).value.trim(); const hs=$(`hs-${id}`).value.trim(); const obs=$(`obs-${id}`).value.trim(); if(!m2||!hs||!obs) return show('Completá m², horas estimadas y observaciones.','err'); if(Number(hs)%1!==0) return show('Las horas estimadas deben ser enteras.','err'); try{ const res=await apiAction('cargarRelevamiento',{idProyecto:id,m2Relevados:m2,horasEstimadasInstalacion:Number(hs),observacionesRelevamiento:obs}); if(!res.ok) throw new Error(res.error||'No se pudo guardar'); show('Relevamiento guardado correctamente.','ok'); await loadAll(); }catch(e){show(e.message,'err')} }
+function setBtnLoading(btn,text){
+  if(!btn) return;
+  btn.dataset.originalText=btn.dataset.originalText||btn.textContent;
+  btn.disabled=true;
+  btn.classList.add('loading');
+  btn.textContent=text||'Procesando...';
+}
+function resetBtn(btn,text){
+  if(!btn) return;
+  btn.disabled=false;
+  btn.classList.remove('loading');
+  btn.textContent=text||btn.dataset.originalText||'Aceptar';
+}
+
+async function guardarRelevamiento(id){
+  const btn=$(`btn-rel-${id}`);
+  const m2=$(`m2-${id}`).value.trim();
+  const hs=$(`hs-${id}`).value.trim();
+  const obs=$(`obs-${id}`).value.trim();
+  if(!m2||!hs||!obs) return show('Completá m², horas estimadas y observaciones.','err');
+  if(Number(hs)%1!==0) return show('Las horas estimadas deben ser enteras.','err');
+  setBtnLoading(btn,'Guardando...');
+  show('Guardando relevamiento y actualizando estado...','ok');
+  try{
+    const res=await apiAction('cargarRelevamiento',{idProyecto:id,m2Relevados:m2,horasEstimadasInstalacion:Number(hs),observacionesRelevamiento:obs});
+    if(!res.ok) throw new Error(res.error||'No se pudo guardar');
+    // Actualización optimista: la tarjeta sale de Relevar/Hoy de inmediato.
+    state.proyectos=state.proyectos.map(p=>p.id===id?{...p,estado:'Presupuesto pendiente',estadoProyecto:'Presupuesto pendiente',m2:m2,hsEst:Number(hs),observaciones:obs}:p);
+    state.tareasHoy=(state.tareasHoy||[]).filter(t=>t.idProyecto!==id);
+    show('Relevamiento guardado correctamente. Actualizando panel...','ok');
+    updateBadges();
+    render();
+    loadAll();
+  }catch(e){
+    show(e.message,'err');
+    resetBtn(btn,'Guardar relevamiento');
+  }
+}
 function monthInfoFromDate(fecha){
   const d=new Date(fecha+'T12:00:00');
   return {year:d.getFullYear(), month:d.getMonth()};
@@ -280,7 +322,34 @@ async function cargarSlotsInstalacion(id){
   }
 }
 function selectSlot(id,hora,el){ state.selectedSlots[id]=hora; const cont=el.parentElement; cont.querySelectorAll('.slot').forEach(b=>b.classList.remove('selected')); el.classList.add('selected'); }
-async function programarInstalacionUI(id){ const p=state.proyectos.find(x=>x.id===id); const fecha=$(`fecha-inst-${id}`).value; const hora=state.selectedSlots[id]; const obs=$(`coord-obs-${id}`).value.trim(); if(!fecha||!hora) return show('Seleccioná fecha y horario disponible.','err'); try{ const check=await apiGet({accion:'slotsDia',fecha:fecha,tipoBloque:'Instalación',duracionTrabajoMin:Number(p.hsEst||0)*60}); const okSlot=(check.slots||[]).some(s=>(s.hora||s.horaPactadaCliente)===hora); if(!check.ok || !okSlot) throw new Error('El horario ya no está disponible. Elegí otro.'); const res=await apiAction('programarInstalacion',{idProyecto:id,fechaInstalacion:fecha,horaPactadaCliente:hora,observacionCoordinacion:obs}); if(!res.ok) throw new Error(res.error||'No se pudo programar'); show('Instalación programada. Abrí el WhatsApp si corresponde.','ok'); if(res.whatsapp && res.whatsapp.url) window.open(res.whatsapp.url,'_blank'); state.bloquesCache={}; state.bloquesPromises={}; await loadAll(); }catch(e){show(e.message,'err')} }
+async function programarInstalacionUI(id){
+  const p=state.proyectos.find(x=>x.id===id);
+  const btn=$(`btn-prog-${id}`);
+  const fecha=$(`fecha-inst-${id}`).value;
+  const hora=state.selectedSlots[id];
+  const obs=$(`coord-obs-${id}`).value.trim();
+  if(!fecha||!hora) return show('Seleccioná fecha y horario disponible.','err');
+  setBtnLoading(btn,'Programando...');
+  show('Validando disponibilidad y programando instalación...','ok');
+  try{
+    const check=await apiGet({accion:'slotsDia',fecha:fecha,tipoBloque:'Instalación',duracionTrabajoMin:Number(p.hsEst||0)*60});
+    const okSlot=(check.slots||[]).some(s=>(s.hora||s.horaPactadaCliente)===hora);
+    if(!check.ok || !okSlot) throw new Error('El horario ya no está disponible. Elegí otro.');
+    const res=await apiAction('programarInstalacion',{idProyecto:id,fechaInstalacion:fecha,horaPactadaCliente:hora,observacionCoordinacion:obs});
+    if(!res.ok) throw new Error(res.error||'No se pudo programar');
+    // Actualización optimista: la tarjeta pasa a Check de inmediato.
+    state.proyectos=state.proyectos.map(x=>x.id===id?{...x,estado:'Instalación programada',estadoProyecto:'Instalación programada',fechaInstalacion:fecha,horaInstalacion:hora}:x);
+    state.bloquesCache={}; state.bloquesPromises={};
+    show('Instalación programada. Actualizando panel...','ok');
+    if(res.whatsapp && res.whatsapp.url) window.open(res.whatsapp.url,'_blank');
+    updateBadges();
+    render();
+    loadAll();
+  }catch(e){
+    show(e.message,'err');
+    resetBtn(btn,'Programar instalación');
+  }
+}
 function renderCalidad(){ const items=sortByAction(state.proyectos.filter(p=>p.estado===EST.PROG),'calidad'); renderCards(items,p=>cardBase(p,calidadBody(p))); }
 function toggleDesvCal(id){ $(`desvcalbox-${id}`).classList.toggle('hidden', $(`desvcal-${id}`).value!=='Sí'); }
 function setBtnBusy(btn, busy, textBusy){
