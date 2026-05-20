@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Conforme de obra — Revestimientos</title>
+<link rel="icon" href="data:,">
+<style>
+:root{
+  --bg:#f6f3ee;
+  --card:#ffffff;
+  --text:#1d1b16;
+  --muted:#6d675f;
+  --line:#ddd6cc;
+  --accent:#1f5d47;
+  --accent2:#e8f2ee;
+  --danger:#b42318;
+  --ok:#087443;
+  --warn:#a15c00;
+  --radius:16px;
+  --shadow:0 2px 12px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+header{
+  background:var(--card);
+  border-bottom:1px solid var(--line);
+  padding:18px 18px;
+  text-align:center;
+}
+.brand{
+  font-weight:800;
+  color:var(--accent);
+  font-size:18px;
+}
+.subheader{
+  color:var(--muted);
+  font-size:13px;
+  margin-top:4px;
+}
+.wrap{
+  max-width:620px;
+  margin:20px auto;
+  padding:0 14px 36px;
+}
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:18px;
+  margin-bottom:14px;
+}
+h1{
+  font-size:22px;
+  line-height:1.2;
+  margin:0 0 8px;
+}
+p{
+  line-height:1.45;
+}
+.small{
+  font-size:13px;
+  color:var(--muted);
+}
+.field{
+  margin-bottom:15px;
+}
+.field label{
+  display:block;
+  font-size:13px;
+  color:var(--muted);
+  margin-bottom:7px;
+  font-weight:700;
+}
+.field textarea,
+.field input{
+  width:100%;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:12px;
+  font-size:16px;
+  background:white;
+}
+.field textarea{
+  min-height:110px;
+  resize:vertical;
+}
+.choice{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.choice button{
+  border:1px solid var(--line);
+  background:white;
+  color:var(--text);
+  border-radius:14px;
+  padding:16px 10px;
+  font-size:16px;
+  font-weight:800;
+  cursor:pointer;
+}
+.choice button.active.ok{
+  background:#ecfdf3;
+  color:var(--ok);
+  border-color:#86d9a6;
+}
+.choice button.active.no{
+  background:#fff1f0;
+  color:var(--danger);
+  border-color:#f5b5ae;
+}
+.stars{
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  margin:8px 0 4px;
+}
+.star{
+  border:1px solid var(--line);
+  background:white;
+  border-radius:12px;
+  width:48px;
+  height:48px;
+  font-size:24px;
+  cursor:pointer;
+  color:#bbb;
+}
+.star.active{
+  color:#f5a400;
+  border-color:#f5a400;
+  background:#fff8e6;
+}
+.btn{
+  width:100%;
+  border:0;
+  background:var(--accent);
+  color:white;
+  border-radius:14px;
+  padding:15px 16px;
+  font-size:17px;
+  font-weight:800;
+  cursor:pointer;
+}
+.btn:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+}
+.msg{
+  display:none;
+  border-radius:12px;
+  padding:12px;
+  margin:12px 0;
+  font-size:14px;
+  line-height:1.4;
+}
+.msg.show{display:block}
+.msg.ok{
+  background:#ecfdf3;
+  color:var(--ok);
+  border:1px solid #b7e4c7;
+}
+.msg.err{
+  background:#fff1f0;
+  color:var(--danger);
+  border:1px solid #f5c2bd;
+}
+.msg.info{
+  background:#f3f6f4;
+  color:var(--muted);
+  border:1px solid var(--line);
+}
+.summary{
+  background:var(--accent2);
+  border:1px solid #c9ded5;
+  border-radius:14px;
+  padding:12px;
+  margin:12px 0;
+}
+.summary div{
+  margin:5px 0;
+}
+.hidden{display:none!important}
+.spinner{
+  display:inline-block;
+  width:15px;
+  height:15px;
+  border:2px solid rgba(255,255,255,.5);
+  border-top-color:white;
+  border-radius:50%;
+  animation:spin .7s linear infinite;
+  margin-right:8px;
+  vertical-align:-2px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.footer{
+  text-align:center;
+  color:var(--muted);
+  font-size:12px;
+  margin-top:18px;
+}
+@media(max-width:460px){
+  .choice{grid-template-columns:1fr}
+  .star{width:44px;height:44px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Conforme de obra</div>
+  <div class="subheader">Validación del servicio de instalación</div>
+</header>
+
+<div class="wrap">
+  <div class="card" id="cardIntro">
+    <h1>Queremos confirmar que el trabajo quedó conforme</h1>
+    <p class="small">
+      Por favor completá esta validación. Tu respuesta nos ayuda a cerrar correctamente el servicio y mejorar la calidad de nuestras instalaciones.
+    </p>
+
+    <div class="summary">
+      <div><b>Proyecto:</b> <span id="viewProyecto">—</span></div>
+      <div><b>Conforme:</b> <span id="viewConforme">—</span></div>
+    </div>
+
+    <div id="msgGlobal" class="msg"></div>
+
+    <div class="field">
+      <label>¿Aceptás el conforme de obra?</label>
+      <div class="choice">
+        <button type="button" id="btnAceptaSi" onclick="setAcepta('Sí')">Sí, acepto</button>
+        <button type="button" id="btnAceptaNo" onclick="setAcepta('No')">No, tengo observaciones</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Calificación del trabajo</label>
+      <div class="stars" id="stars">
+        <button type="button" class="star" onclick="setRating(1)">★</button>
+        <button type="button" class="star" onclick="setRating(2)">★</button>
+        <button type="button" class="star" onclick="setRating(3)">★</button>
+        <button type="button" class="star" onclick="setRating(4)">★</button>
+        <button type="button" class="star" onclick="setRating(5)">★</button>
+      </div>
+      <div class="small" style="text-align:center"><span id="ratingLabel">Sin calificar</span></div>
+    </div>
+
+    <div class="field">
+      <label id="comentarioLabel">Comentario</label>
+      <textarea id="comentarioCliente" placeholder="Podés dejarnos un comentario sobre el trabajo realizado."></textarea>
+      <div class="small" id="comentarioHint">Si aceptás el conforme, el comentario es opcional.</div>
+    </div>
+
+    <button class="btn" id="btnEnviar" onclick="enviarRespuesta()">Enviar respuesta</button>
+  </div>
+
+  <div class="card hidden" id="cardGracias">
+    <h1>Respuesta registrada</h1>
+    <p id="graciasTexto">Gracias por completar el conforme.</p>
+  </div>
+
+  <div class="footer">
+    Maderplak / WUD — Servicio de instalación de revestimientos
+  </div>
+</div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbyyxwT0JqzDOVpNP3Aj67aaquvqSHqCP96_pOQxOTdkA8xonGcnGE5-LSRuJiiTBlMc/exec';
+
+const state = {
+  idProyecto: '',
+  idConforme: '',
+  aceptaConforme: '',
+  calificacion: 0,
+  enviando: false
+};
+
+function getParam(name){
+  const p = new URLSearchParams(window.location.search);
+  return p.get(name) || '';
+}
+
+function enc(obj){
+  return encodeURIComponent(JSON.stringify(obj || {}));
+}
+
+async function fetchJson(url){
+  const res = await fetch(url, { redirect:'follow', cache:'no-store' });
+  const txt = await res.text();
+  try {
+    return JSON.parse(txt);
+  } catch(e) {
+    throw new Error('Respuesta no JSON del backend: ' + txt.slice(0,180));
+  }
+}
+
+async function api(accion, datos){
+  return fetchJson(API_URL + '?accion=' + encodeURIComponent(accion) + '&datos=' + enc(datos) + '&_ts=' + Date.now());
+}
+
+function showMsg(tipo, texto){
+  const el = document.getElementById('msgGlobal');
+  el.className = 'msg show ' + tipo;
+  el.textContent = texto;
+}
+
+function clearMsg(){
+  const el = document.getElementById('msgGlobal');
+  el.className = 'msg';
+  el.textContent = '';
+}
+
+function setAcepta(valor){
+  state.aceptaConforme = valor;
+
+  document.getElementById('btnAceptaSi').className = valor === 'Sí' ? 'active ok' : '';
+  document.getElementById('btnAceptaNo').className = valor === 'No' ? 'active no' : '';
+
+  const label = document.getElementById('comentarioLabel');
+  const hint = document.getElementById('comentarioHint');
+  const txt = document.getElementById('comentarioCliente');
+
+  if(valor === 'No'){
+    label.textContent = 'Comentario / observación obligatoria';
+    hint.textContent = 'Contanos qué observaste para que podamos coordinar una corrección.';
+    txt.placeholder = 'Describí la observación o el motivo por el cual no aceptás el conforme.';
+  } else {
+    label.textContent = 'Comentario';
+    hint.textContent = 'Si aceptás el conforme, el comentario es opcional.';
+    txt.placeholder = 'Podés dejarnos un comentario sobre el trabajo realizado.';
+  }
+
+  clearMsg();
+}
+
+function setRating(valor){
+  state.calificacion = valor;
+  document.querySelectorAll('.star').forEach((btn, idx) => {
+    btn.classList.toggle('active', idx < valor);
+  });
+
+  const textos = {
+    1: '1 estrella',
+    2: '2 estrellas',
+    3: '3 estrellas',
+    4: '4 estrellas',
+    5: '5 estrellas'
+  };
+
+  document.getElementById('ratingLabel').textContent = textos[valor] || 'Sin calificar';
+  clearMsg();
+}
+
+function setLoading(on){
+  const btn = document.getElementById('btnEnviar');
+  state.enviando = on;
+  btn.disabled = on;
+  btn.innerHTML = on ? '<span class="spinner"></span>Enviando...' : 'Enviar respuesta';
+
+  document.getElementById('btnAceptaSi').disabled = on;
+  document.getElementById('btnAceptaNo').disabled = on;
+  document.querySelectorAll('.star').forEach(b => b.disabled = on);
+  document.getElementById('comentarioCliente').disabled = on;
+}
+
+function validar(){
+  if(!state.idProyecto || !state.idConforme){
+    return 'El link del conforme está incompleto. Falta idProyecto o idConforme.';
+  }
+
+  if(!state.aceptaConforme){
+    return 'Seleccioná si aceptás o no el conforme de obra.';
+  }
+
+  if(!state.calificacion){
+    return 'Seleccioná una calificación de 1 a 5 estrellas.';
+  }
+
+  const comentario = document.getElementById('comentarioCliente').value.trim();
+
+  if(state.aceptaConforme === 'No' && !comentario){
+    return 'El comentario es obligatorio cuando no aceptás el conforme.';
+  }
+
+  return '';
+}
+
+async function enviarRespuesta(){
+  if(state.enviando) return;
+
+  const error = validar();
+  if(error){
+    showMsg('err', error);
+    return;
+  }
+
+  const comentario = document.getElementById('comentarioCliente').value.trim();
+
+  const datos = {
+    idProyecto: state.idProyecto,
+    idConforme: state.idConforme,
+    aceptaConforme: state.aceptaConforme,
+    calificacion: state.calificacion,
+    comentarioCliente: comentario
+  };
+
+  setLoading(true);
+  showMsg('info', 'Enviando respuesta y actualizando el proyecto...');
+
+  try{
+    const r = await api('responderConformeCliente', datos);
+
+    if(r && r.ok){
+      document.getElementById('cardIntro').classList.add('hidden');
+      document.getElementById('cardGracias').classList.remove('hidden');
+
+      if(state.aceptaConforme === 'Sí'){
+        document.getElementById('graciasTexto').textContent = 'Gracias. El conforme fue aceptado y el proyecto quedó cerrado.';
+      } else {
+        document.getElementById('graciasTexto').textContent = 'Gracias. Registramos tu observación para coordinar la revisión correspondiente.';
+      }
+    } else {
+      setLoading(false);
+      showMsg('err', (r && r.error) ? r.error : 'No se pudo registrar la respuesta.');
+    }
+  } catch(e){
+    setLoading(false);
+    showMsg('err', 'Error de conexión. ' + e.message);
+  }
+}
+
+function init(){
+  state.idProyecto = getParam('idProyecto') || getParam('id') || '';
+  state.idConforme = getParam('idConforme') || getParam('conforme') || '';
+
+  document.getElementById('viewProyecto').textContent = state.idProyecto || 'No informado';
+  document.getElementById('viewConforme').textContent = state.idConforme || 'No informado';
+
+  if(!state.idProyecto || !state.idConforme){
+    showMsg('err', 'El link del conforme está incompleto. Verificá que tenga idProyecto e idConforme.');
+    document.getElementById('btnEnviar').disabled = true;
+  }
+}
+
+init();
+</script>
+</body>
+</html>
