@@ -16,13 +16,13 @@
 body{margin:0;background:#f3f0e8;color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
 .topbar{position:sticky;top:0;z-index:20;background:#0b3f2c;color:#fff;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 0 rgba(255,255,255,.08)}
 .brand{font-weight:800;letter-spacing:.2px;font-size:16px}.clock{font-size:12px;opacity:.8;white-space:nowrap}.wrap{max-width:980px;margin:0 auto;padding:12px 12px 88px}
-.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:10px 0 14px;position:sticky;top:54px;z-index:15;background:#f3f0e8;padding:8px 0}
+.tabs{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:10px 0 14px;position:sticky;top:54px;z-index:15;background:#f3f0e8;padding:8px 0}
 .tab{border:1px solid #d9d2c5;border-radius:999px;background:#fff;color:#2b2e2b;padding:10px 8px;font-weight:700;font-size:12px;line-height:1;cursor:pointer;min-height:42px}.tab.active{background:var(--brand);color:#fff;border-color:var(--brand)}.tab .badge{display:inline-flex;min-width:19px;height:19px;border-radius:999px;align-items:center;justify-content:center;font-size:11px;margin-left:4px;background:#efe8dd;color:#3f3b35}.tab.active .badge{background:rgba(255,255,255,.18);color:#fff}
 .status{display:none;border-radius:14px;padding:12px 14px;margin:8px 0 12px;font-size:14px;border:1px solid}.status.show{display:block}.status.ok{background:#eaf7ef;color:#0b5d3b;border-color:#b8dfc7}.status.err{background:#fff0ed;color:#a42316;border-color:#f3b5ac}.status.info{background:#eef5ff;color:#174ea6;border-color:#c9ddff}
 .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}.cardHead{padding:14px 14px 10px;border-bottom:1px solid #eee8dc}.id{font-size:12px;color:var(--muted);font-weight:700}.client{font-size:18px;font-weight:850;margin:4px 0 3px}.addr,.desc{font-size:13px;color:#52564f;line-height:1.35}.chiprow{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.chip{display:inline-flex;align-items:center;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:800;background:#f0eee8;color:#3d403b}.chip.blue{background:#e8f0fe;color:#185abc}.chip.green{background:#e6f4ea;color:#137333}.chip.warn{background:#fff4e5;color:#9a5b00}.chip.red{background:#fce8e6;color:#a50e0e}
 .cardBody{padding:14px}.sectionTitle{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#76736d;font-weight:850;margin:2px 0 10px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}.field label{font-size:12px;font-weight:850;color:#4e544e}.field input,.field select,.field textarea{width:100%;border:1px solid #cfc8bb;border-radius:13px;background:#fff;padding:13px 12px;font-size:16px;color:#151815;outline:none}.field textarea{min-height:92px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(11,93,59,.12)}.hint{font-size:12px;color:#72756f;margin-top:-4px}.btn{width:100%;border:0;border-radius:14px;background:var(--brand);color:#fff;padding:14px 16px;font-weight:850;font-size:16px;min-height:50px;cursor:pointer}.btn:disabled{opacity:.55;cursor:not-allowed}.btn.loading{position:relative;background:#0a4c31}.btn.loading::before{content:"";display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;margin-right:8px;vertical-align:-3px}.btn.secondary{background:#fff;color:var(--brand);border:1px solid var(--brand)}.btn.blue{background:#185abc}.btn.warn{background:#a15c00}.btnRow{display:grid;grid-template-columns:1fr 1fr;gap:10px}.empty{background:#fff;border:1px dashed #cfc8bb;border-radius:18px;text-align:center;padding:36px 18px;color:#6c6c66}.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0 14px}.slot{border:1px solid #cfc8bb;background:#fff;border-radius:12px;padding:12px 4px;font-size:15px;font-weight:850;text-align:center;cursor:pointer}.slot.selected{background:var(--brand);border-color:var(--brand);color:#fff}.slot:disabled{opacity:.35;cursor:not-allowed}.loader{display:inline-block;width:16px;height:16px;border:2px solid rgba(11,93,59,.25);border-top-color:var(--brand);border-radius:50%;animation:spin .8s linear infinite;vertical-align:-3px;margin-right:8px}@keyframes spin{to{transform:rotate(360deg)}}
 .todayItem{display:flex;gap:12px;align-items:flex-start;border-top:1px solid #eee8dc;padding:12px 0}.todayItem:first-child{border-top:0}.metaLine{font-size:12px;color:#6f736d;margin-top:2px}.actionHint{background:#eef5ff;border:1px solid #c9ddff;color:#174ea6;border-radius:12px;padding:9px 11px;font-size:12px;font-weight:750;margin-bottom:12px}.todayActions{margin-top:10px}.sectionGap{height:10px}.timeBox{min-width:62px;border-radius:12px;background:#edf4ef;color:#0b5d3b;text-align:center;padding:8px 6px;font-weight:900}.small{font-size:12px;color:#6f736d}.calcBox{border:1px solid #e1d8c9;background:#fbfaf7;border-radius:14px;padding:10px 12px;margin-bottom:12px;color:#474a45;font-size:13px}.checkList{display:grid;gap:8px;margin-bottom:12px}.check{display:flex;align-items:center;gap:10px;background:#faf9f5;border:1px solid #e4ded2;border-radius:13px;padding:12px}.check input{width:22px;height:22px;accent-color:var(--brand)}.check span{font-weight:750;font-size:14px}.hidden{display:none!important}
-@media(max-width:680px){.wrap{padding:8px 8px 92px}.topbar{padding:13px 12px}.tabs{position:fixed;left:0;right:0;bottom:0;top:auto;margin:0;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid #ddd;grid-template-columns:repeat(5,1fr);box-shadow:0 -6px 20px rgba(0,0,0,.08)}.tab{border-radius:14px;font-size:10px;padding:8px 4px;min-height:48px}.tab .badge{display:block;margin:4px auto 0}.grid2{grid-template-columns:1fr}.slots{grid-template-columns:repeat(3,1fr)}.client{font-size:17px}.card{border-radius:16px}.btnRow{grid-template-columns:1fr}.clock{display:none}}
+@media(max-width:680px){.wrap{padding:8px 8px 92px}.topbar{padding:13px 12px}.tabs{position:fixed;left:0;right:0;bottom:0;top:auto;margin:0;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid #ddd;grid-template-columns:repeat(6,1fr);box-shadow:0 -6px 20px rgba(0,0,0,.08)}.tab{border-radius:14px;font-size:10px;padding:8px 4px;min-height:48px}.tab .badge{display:block;margin:4px auto 0}.grid2{grid-template-columns:1fr}.slots{grid-template-columns:repeat(3,1fr)}.client{font-size:17px}.card{border-radius:16px}.btnRow{grid-template-columns:1fr}.clock{display:none}}
 @media(min-width:681px){.cardGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.cardGrid .card{margin-bottom:0}}
 
 .btn:disabled{opacity:.65;cursor:not-allowed;filter:grayscale(.15)}
@@ -40,6 +40,7 @@ body{margin:0;background:#f3f0e8;color:var(--text);font-family:system-ui,-apple-
     <button class="tab" data-tab="coordinar">Coordinar <span class="badge" id="b-coordinar">0</span></button>
     <button class="tab" data-tab="calidad">Check <span class="badge" id="b-calidad">0</span></button>
     <button class="tab" data-tab="conforme">Conforme <span class="badge" id="b-conforme">0</span></button>
+    <button class="tab" data-tab="agenda">Agenda <span class="badge" id="b-agenda">•</span></button>
   </div>
   <div id="status" class="status"></div>
   <div id="app"></div>
@@ -54,6 +55,7 @@ const state = { tab:'hoy', proyectos:[], tareasHoy:[], alertas:[], bloquesCache:
 
 const EST = { PEND:'Pendiente relevamiento', PRES:'Presupuesto pendiente', CONF:'Instalación confirmada', PROG:'Instalación programada', INST:'Instalado', OBS:'Instalación observada', CERR:'Cerrado' };
 const MOTIVOS = ['Superficie en peor estado que lo relevado','Demora por condiciones del cliente','Mayor complejidad de cortes o terminaciones','Falta o ajuste de material','Herramientas/equipos','Estimación inicial insuficiente','Otro'];
+const MOTIVOS_BLOQUEO = ['Tarea técnica WUD','Reparación edilicia','Soporte Häfele','Compra / retiro de materiales','Reunión interna','Mantenimiento','Capacitación','Otro'];
 function $(id){return document.getElementById(id)}
 function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function show(msg,type='info'){const el=$('status'); el.className='status show '+type; el.textContent=msg; setTimeout(()=>{el.classList.remove('show')}, type==='err'?6500:3500)}
@@ -87,9 +89,9 @@ function mapProyecto(p){return {
   observaciones:p.observaciones||p.observacionesRelevamiento||''
 }}
 async function loadAll(){ try{ show('Actualizando información...', 'info'); const [proy,hoy] = await Promise.all([apiGet({accion:'proyectos'}), apiGet({accion:'hoy'})]); state.proyectos = normalizeList(proy).map(mapProyecto); state.tareasHoy = (hoy&&hoy.tareasHoy)||[]; state.alertas = (hoy&&hoy.alertas)||[]; updateBadges(); render(); setTimeout(warmCoordinarAvailability,0); }catch(e){ console.error(e); show('No se pudo cargar información: '+e.message,'err'); render(); } }
-function updateBadges(){ const c={hoy:state.tareasHoy.length+state.alertas.length,relevamiento:0,coordinar:0,calidad:0,conforme:0}; state.proyectos.forEach(p=>{ if(p.estado===EST.PEND)c.relevamiento++; if(p.estado===EST.CONF)c.coordinar++; if(p.estado===EST.PROG)c.calidad++; if(p.estado===EST.INST)c.conforme++; }); $('b-hoy').textContent=c.hoy; $('b-relevamiento').textContent=c.relevamiento; $('b-coordinar').textContent=c.coordinar; $('b-calidad').textContent=c.calidad; $('b-conforme').textContent=c.conforme; }
+function updateBadges(){ const c={hoy:state.tareasHoy.length+state.alertas.length,relevamiento:0,coordinar:0,calidad:0,conforme:0}; state.proyectos.forEach(p=>{ if(p.estado===EST.PEND)c.relevamiento++; if(p.estado===EST.CONF)c.coordinar++; if(p.estado===EST.PROG)c.calidad++; if(p.estado===EST.INST)c.conforme++; }); $('b-hoy').textContent=c.hoy; $('b-relevamiento').textContent=c.relevamiento; $('b-coordinar').textContent=c.coordinar; $('b-calidad').textContent=c.calidad; $('b-conforme').textContent=c.conforme; if($('b-agenda')) $('b-agenda').textContent='•'; }
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{state.tab=b.dataset.tab; document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===state.tab)); render();}));
-function render(){ if(state.tab==='hoy') return renderHoy(); if(state.tab==='relevamiento') return renderRelevamiento(); if(state.tab==='coordinar') return renderCoordinar(); if(state.tab==='calidad') return renderCalidad(); if(state.tab==='conforme') return renderConforme(); }
+function render(){ if(state.tab==='hoy') return renderHoy(); if(state.tab==='relevamiento') return renderRelevamiento(); if(state.tab==='coordinar') return renderCoordinar(); if(state.tab==='calidad') return renderCalidad(); if(state.tab==='conforme') return renderConforme(); if(state.tab==='agenda') return renderAgenda(); }
 function renderCards(items, fn){ $('app').innerHTML = items.length ? `<div class="cardGrid">${items.map(fn).join('')}</div>` : `<div class="empty">No hay elementos pendientes en esta sección.</div>`; }
 function cardBase(p, body){return `<div class="card"><div class="cardHead"><div class="id">${esc(p.id)} · ${esc(p.estado)}</div><div class="client">${esc(p.clienteNombre)}</div><div class="addr">${esc(p.clienteDireccion)}</div><div class="chiprow">${p.clienteTelefono?`<span class="chip">Tel. ${esc(p.clienteTelefono)}</span>`:''}${p.fechaRelevamiento?`<span class="chip blue">Rel. ${formatHuman(p.fechaRelevamiento)} ${esc(fmtTime(p.horaRelevamiento))}</span>`:''}${p.hsEst?`<span class="chip green">${esc(p.hsEst)} hs est.</span>`:''}</div></div><div class="cardBody">${body}</div></div>`}
 
@@ -463,6 +465,117 @@ async function enviarConformeUI(id){
     }
   }
 }
+
+function renderAgenda(){
+  const fecha = todayStr();
+  $('app').innerHTML = `
+    <div class="card">
+      <div class="cardHead">
+        <div class="id">Bloqueo interno de agenda</div>
+        <div class="client">Marcar horario no disponible</div>
+        <div class="desc">Usá esta opción cuando tengas tareas técnicas, reuniones, compras, mantenimiento u otras actividades. Los vendedores dejarán de ver ese rango como disponible.</div>
+      </div>
+      <div class="cardBody">
+        <div class="grid2">
+          <div class="field"><label>Fecha</label><input id="bloq-fecha" type="date" value="${fecha}" min="${todayStr()}" onchange="cargarBloqueosAgendaDia()"></div>
+          <div class="field"><label>Motivo</label><select id="bloq-motivo">${MOTIVOS_BLOQUEO.map(m=>`<option>${esc(m)}</option>`).join('')}</select></div>
+          <div class="field"><label>Hora inicio</label><input id="bloq-inicio" type="time"></div>
+          <div class="field"><label>Hora fin</label><input id="bloq-fin" type="time"></div>
+        </div>
+        <div class="field"><label>Observación</label><textarea id="bloq-obs" placeholder="Detalle opcional. Obligatorio si el motivo es Otro."></textarea></div>
+        <button id="btn-bloq" class="btn" onclick="crearBloqueoAgendaUI()">Bloquear horario</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="cardHead">
+        <div class="id">Agenda del día</div>
+        <div class="client">Bloqueos y compromisos</div>
+        <div class="desc">Se muestran los bloques programados de la fecha seleccionada.</div>
+      </div>
+      <div class="cardBody" id="bloq-lista"><span class="loader"></span>Leyendo agenda...</div>
+    </div>`;
+  cargarBloqueosAgendaDia();
+}
+
+async function crearBloqueoAgendaUI(){
+  const btn=$('btn-bloq');
+  const fecha=$('bloq-fecha').value;
+  const horaInicio=$('bloq-inicio').value;
+  const horaFin=$('bloq-fin').value;
+  const motivo=$('bloq-motivo').value;
+  const observacion=$('bloq-obs').value.trim();
+
+  if(!fecha||!horaInicio||!horaFin||!motivo) return show('Completá fecha, hora inicio, hora fin y motivo.','err');
+  if(motivo==='Otro' && !observacion) return show('Si el motivo es Otro, completá una observación.','err');
+  if(timeToMinLocal(horaFin)<=timeToMinLocal(horaInicio)) return show('La hora fin debe ser posterior a la hora inicio.','err');
+
+  setBtnLoading(btn,'Bloqueando...');
+  try{
+    const res=await apiAction('crearBloqueoAgenda',{fecha,horaInicio,horaFin,motivo,observacion});
+    if(!res.ok) throw new Error(res.error||'No se pudo bloquear el horario');
+    state.bloquesCache={}; state.bloquesPromises={};
+    $('bloq-inicio').value='';
+    $('bloq-fin').value='';
+    $('bloq-obs').value='';
+    show('Horario bloqueado correctamente. Los vendedores ya no verán ese rango disponible.','ok');
+    resetBtn(btn,'Bloquear horario');
+    cargarBloqueosAgendaDia();
+  }catch(e){
+    show(e.message,'err');
+    resetBtn(btn,'Bloquear horario');
+  }
+}
+
+async function cargarBloqueosAgendaDia(){
+  const box=$('bloq-lista');
+  const input=$('bloq-fecha');
+  if(!box||!input) return;
+  const fecha=input.value;
+  if(!fecha){ box.innerHTML='<div class="empty">Seleccioná una fecha.</div>'; return; }
+  const {year,month}=monthInfoFromDate(fecha);
+  box.innerHTML='<span class="loader"></span>Leyendo agenda del día...';
+  try{
+    const bloquesMes=await getBloquesMesLocal(year,month);
+    const bloques=(bloquesMes[fecha]||[]).filter(b=>String(b.estadoBloque||'').trim()==='Programado')
+      .sort((a,b)=>String(a.horaInicioBloque||'').localeCompare(String(b.horaInicioBloque||'')));
+    if(!bloques.length){ box.innerHTML='<div class="empty">No hay bloqueos ni compromisos programados para esta fecha.</div>'; return; }
+    box.innerHTML=bloques.map(b=>renderBloqueAgendaItem(b)).join('');
+  }catch(e){
+    box.innerHTML=`<div class="calcBox" style="color:#a42316">${esc(e.message)}</div>`;
+  }
+}
+
+function renderBloqueAgendaItem(b){
+  const esBloqueo=String(b.tipoBloque||'')==='No disponible';
+  const desde=fmtTime(b.horaInicioBloque||b.horaPactadaCliente);
+  const hasta=fmtTime(b.horaFinBloque||b.horaFinTrabajoCliente);
+  const motivo=b.motivoReprogramacion||'';
+  const obs=b.observacionReprogramacion||'';
+  return `<div class="todayItem">
+    <div class="timeBox">${esc(desde)}<br><span class="small">${esc(hasta)}</span></div>
+    <div style="flex:1">
+      <div><b>${esc(b.tipoBloque||'Bloque')}</b> ${esBloqueo?'<span class="chip warn">No disponible</span>':''}</div>
+      ${b.idProyecto?`<div class="small">Proyecto: ${esc(b.idProyecto)}</div>`:''}
+      ${motivo?`<div class="small">Motivo: ${esc(motivo)}</div>`:''}
+      ${obs?`<div class="small">${esc(obs)}</div>`:''}
+      ${esBloqueo?`<div class="todayActions"><button class="btn secondary" onclick="cancelarBloqueoAgendaUI('${esc(b.idBloque)}')">Cancelar bloqueo</button></div>`:''}
+    </div>
+  </div>`;
+}
+
+async function cancelarBloqueoAgendaUI(idBloque){
+  if(!confirm('¿Cancelar este bloqueo de agenda?')) return;
+  try{
+    const res=await apiAction('cancelarBloqueoAgenda',{idBloque});
+    if(!res.ok) throw new Error(res.error||'No se pudo cancelar el bloqueo');
+    state.bloquesCache={}; state.bloquesPromises={};
+    show('Bloqueo cancelado correctamente.','ok');
+    cargarBloqueosAgendaDia();
+  }catch(e){
+    show(e.message,'err');
+  }
+}
+
 nowClock(); setInterval(nowClock,30000); loadAll();
 </script>
 </body>
